@@ -93,7 +93,8 @@ async function probe(url) {
     if (!r.ok) r = await attempt('GET'); // many servers reject HEAD
     return { url, ...r, error: null };
   } catch (e) {
-    return { url, status: 0, ok: false, finalUrl: null, error: e.cause?.code || e.name || String(e) };
+    const cause = e.cause ? (e.cause.code || e.cause.message || String(e.cause)) : '';
+    return { url, status: 0, ok: false, finalUrl: null, error: [e.name, cause].filter(Boolean).join(': ') };
   }
 }
 

@@ -173,7 +173,7 @@ function renderControls() {
   const size = currentSize();
   controls.innerHTML = `
     <div class="textsize" role="group" aria-label="${esc(T.label)}">
-      ${SIZES.map((s) => `<button type="button" class="ctl ctl--size ctl--${s}" data-action="size" data-size="${s}" aria-pressed="${String(s === size)}" aria-label="${esc(T[`${s}_full`])}">${esc(T[s])}</button>`).join('')}
+      ${SIZES.map((s) => `<button type="button" class="ctl ctl--size ctl--${s}" data-action="size" data-size="${s}" aria-pressed="${String(s === size)}" aria-label="${esc(T[s])} – ${esc(T[`${s}_full`])}">${esc(T[s])}</button>`).join('')}
     </div>
     <button type="button" class="ctl ctl--tts tts-only" data-action="tts-toggle" aria-pressed="${String(tts.auto)}">🔊 ${esc(tts.auto ? strings.tts.auto_on : strings.tts.auto_off)}</button>`;
 }

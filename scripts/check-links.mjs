@@ -9,6 +9,7 @@
  *                                                #   needed for Kol Zchut, which answers 403 to plain fetch
  *   node scripts/check-links.mjs --offline       # syntax/duplicate pass only (no network)
  *   node scripts/check-links.mjs --all           # also scan research/*.md notes
+ *   node scripts/check-links.mjs --no-wayback    # skip the Wayback Machine lookup for blocked URLs
  *   node scripts/check-links.mjs --timeout=20000 --concurrency=4
  *
  * Behind a corporate proxy Node's fetch needs: NODE_USE_ENV_PROXY=1 (Node ≥ 22.21).
@@ -121,6 +122,7 @@ async function makeBrowserProbe() {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ locale: 'he-IL', userAgent: CHROME_UA, viewport: { width: 412, height: 915 } });
   const probe = async (url) => {
+    if (/\.pdf(\?|$)/i.test(url) || /\/BlobFolder\//.test(url)) return probeFetch(url); // Chromium would download these
     const page = await ctx.newPage();
     try {
       const res = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: TIMEOUT });
@@ -132,8 +134,9 @@ async function makeBrowserProbe() {
       const ok = status >= 200 && status < 300 && !missing && !challenge;
       return { url, status: challenge ? 403 : status, finalUrl, ok, error: missing ? 'MediaWiki: page does not exist' : null, title, via: 'browser' };
     } catch (e) {
+      if (/Download is starting/i.test(e.message)) { await page.close().catch(() => {}); return probeFetch(url); }
       return { url, status: 0, ok: false, finalUrl: null, error: e.message.split('\n')[0], via: 'browser' };
-    } finally { await page.close(); }
+    } finally { await page.close().catch(() => {}); }
   };
   return { probe, close: () => browser.close() };
 }
@@ -150,6 +153,24 @@ if (bp) await bp.close();
 
 const okList = results.filter((r) => r.ok);
 const soft = results.filter((r) => !r.ok && (r.status === 403 || (r.status === 404 && SOFT_GITHUB.test(hostOf(r.url)))));
+
+// For URLs the server refused, ask the Wayback Machine for the latest snapshot: proof the page
+// existed (and its title then), which is the best a bot can do against a Cloudflare challenge.
+if (!args['no-wayback']) {
+  const wb = async (r) => {
+    try {
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), TIMEOUT);
+      const res = await fetch(`https://archive.org/wayback/available?url=${encodeURIComponent(encodeURI(decodeURI(r.url)))}`, { signal: ctl.signal, headers: { 'user-agent': UA } });
+      clearTimeout(t);
+      const j = await res.json();
+      const snap = j?.archived_snapshots?.closest;
+      r.wayback = snap && snap.available ? { ts: snap.timestamp, url: snap.url, status: snap.status } : null;
+    } catch (e) { r.wayback = undefined; r.waybackError = e.cause?.code || e.name; }
+  };
+  let k = 0;
+  const targets = soft.filter((r) => !SOFT_GITHUB.test(hostOf(r.url)));
+  await Promise.all(Array.from({ length: 4 }, async () => { while (k < targets.length) await wb(targets[k++]); }));
+}
 const hard = results.filter((r) => !r.ok && !soft.includes(r));
 
 console.log(`\n${okList.length} OK · ${soft.length} blocked-for-bots / private (reported, not failing) · ${hard.length} FAILED   [mode: ${BROWSER ? 'browser' : 'fetch'}]`);
@@ -157,9 +178,16 @@ const show = (r) => {
   console.log(`  ${r.status ? `HTTP ${r.status}` : `ERR ${r.error}`}${r.status && r.error ? ` (${r.error})` : ''}  ${r.url}`);
   if (r.finalUrl && decodeURI(r.finalUrl).replace(/\/$/, '') !== decodeURI(r.url).replace(/\/$/, '')) console.log(`      → redirected to ${decodeURI(r.finalUrl)}`);
   if (r.title) console.log(`      title: ${r.title.slice(0, 90)}`);
+  if (r.wayback) console.log(`      wayback: snapshot ${r.wayback.ts.slice(6, 8)}.${r.wayback.ts.slice(4, 6)}.${r.wayback.ts.slice(0, 4)} (HTTP ${r.wayback.status}) ${r.wayback.url}`);
+  else if (r.wayback === null) console.log('      wayback: no snapshot found');
+  else if (r.waybackError) console.log(`      wayback: lookup failed (${r.waybackError})`);
   for (const where of found.get(r.url)) console.log(`      used in: ${where}`);
 };
-if (soft.length) { console.log('\nBlocked for non-browser clients / private (verify manually in a browser, or run with --browser):'); soft.forEach(show); }
+if (soft.length) {
+  const withSnap = soft.filter((r) => r.wayback).length;
+  console.log(`\nBlocked for non-browser clients / private — ${withSnap} of ${soft.length} have a Wayback Machine snapshot (verify the rest manually in a browser):`);
+  soft.forEach(show);
+}
 if (hard.length) { console.log('\nFAILED:'); hard.forEach(show); }
 const redirected = okList.filter((r) => r.finalUrl && decodeURI(r.finalUrl).replace(/\/$/, '') !== decodeURI(r.url).replace(/\/$/, ''));
 if (redirected.length) { console.log('\nOK but redirected (check the destination is still the intended page):'); redirected.forEach(show); }

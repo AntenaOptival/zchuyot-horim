@@ -1,0 +1,2270 @@
+{
+  "_meta": {
+    "version": "0.3",
+    "verified": "2026-09-14",
+    "statuses": {
+      "likely": "כנראה זכאי/ת",
+      "check": "שווה לבדוק",
+      "info": "כדאי לדעת"
+    },
+    "predicate_grammar": "all/any/not, eq, in, includes, gte, lte, unknown — see SPEC.md §5. Fields prefixed with derived. are computed (see questions.json → derived_fields).",
+    "evaluation": "Three-valued logic. Each predicate returns true / false / unknown. A field is UNKNOWN only when the user answered 'dontknow'. A field whose question was never shown (show_if false) or was skipped as optional is NOT APPLICABLE and evaluates as a definite false for eq/in/includes/gte/lte (and 'unknown' predicate returns false). all: any false → false; else any unknown → unknown; else true. any: any true → true; else any unknown → unknown; else false. not: flips true/false, keeps unknown. A right is shown with status_if_met when its conditions are true, with status_if_partial when unknown, hidden when false. Rights with 'always': true are always shown with status 'info'. variants: the first variant whose 'when' is true overrides status and appends title_suffix / note.",
+    "copy_rules": "Never say 'זכאי/ת' without כנראה. Every card shows the source line: 'מקור: {source.name} · נבדק {verified}'. Money figures are shown with their as-of date.",
+    "verification": "0.2 (14.9.2026 evening): every right fact-checked against its cited sources by three independent passes — 172 claims: 153 OK, 17 corrected, 14 left as 'unverifiable' and softened or sourced. See VERIFICATION.md.",
+    "flow_note": "0.3: questions.json is adaptive — pension_income + form_161d merged into pension_status; income_band/seniors_in_home are auto-filled (b1 / 1) for income-supplement recipients via skip_if; electricity_contract and disability are asked only when they can matter; pre-retirement users jump to results after screen 2."
+  },
+  "derived": {
+    "retirement_age_men_years": 67,
+    "retirement_age_women": [
+      {
+        "born_until": "1944-06",
+        "age": "60y0m"
+      },
+      {
+        "born_until": "1944-08",
+        "age": "60y4m"
+      },
+      {
+        "born_until": "1945-04",
+        "age": "60y8m"
+      },
+      {
+        "born_until": "1945-12",
+        "age": "61y0m"
+      },
+      {
+        "born_until": "1946-08",
+        "age": "61y4m"
+      },
+      {
+        "born_until": "1947-04",
+        "age": "61y8m"
+      },
+      {
+        "born_until": "1959-12",
+        "age": "62y0m"
+      },
+      {
+        "born_until": "1960-12",
+        "age": "62y4m"
+      },
+      {
+        "born_until": "1961-12",
+        "age": "62y8m"
+      },
+      {
+        "born_until": "1962-12",
+        "age": "63y0m"
+      },
+      {
+        "born_until": "1963-12",
+        "age": "63y3m"
+      },
+      {
+        "born_until": "1964-12",
+        "age": "63y6m"
+      },
+      {
+        "born_until": "1965-12",
+        "age": "63y9m"
+      },
+      {
+        "born_until": "1966-12",
+        "age": "64y0m"
+      },
+      {
+        "born_until": "1967-12",
+        "age": "64y3m"
+      },
+      {
+        "born_until": "1968-12",
+        "age": "64y6m"
+      },
+      {
+        "born_until": "1969-12",
+        "age": "64y9m"
+      },
+      {
+        "born_until": "9999-12",
+        "age": "65y0m"
+      }
+    ],
+    "retirement_age_source": {
+      "name": "ביטוח לאומי — גיל פרישה",
+      "url": "https://www.btl.gov.il/benefits/old_age/Conditions_of_eligibility/gilMezake/Pages/gilPrisha.aspx",
+      "verified": "2026-09-14"
+    },
+    "thresholds_2026": {
+      "average_wage_single": 13623,
+      "average_wage_two_seniors": 20434.5,
+      "income_supplement_max_single": 4375,
+      "income_supplement_max_couple": 6912,
+      "income_supplement_pension_disregard_single": 1790,
+      "income_supplement_pension_disregard_couple": 2823,
+      "small_pension_13a_single": 3345.87,
+      "small_pension_13a_couple": 5273.53,
+      "siud_full_single": 13769,
+      "siud_half_single": 20654,
+      "siud_full_couple": 20654,
+      "siud_half_couple": 30980,
+      "electricity_max_discount_month": 129,
+      "heating_grant": 664,
+      "survivor_annual_grant": 7688,
+      "pension_exempt_ceiling_month": 9430,
+      "pension_exempt_share": 0.575
+    }
+  },
+  "rights": [
+    {
+      "id": "arnona_30",
+      "group": "arnona",
+      "title": "הנחה של 30% בארנונה לאזרח ותיק (במקום 25%)",
+      "value": "עוד 5% הנחה על עד 100 מ\"ר — לפי חוק, לא לפי שיקול דעת העירייה",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "derived.retirement_age_reached",
+              true
+            ]
+          },
+          {
+            "in": [
+              "housing",
+              [
+                "owner",
+                "renter"
+              ]
+            ]
+          },
+          {
+            "eq": [
+              "arnona_in_name",
+              "yes"
+            ]
+          },
+          {
+            "in": [
+              "arnona_discount",
+              [
+                "none",
+                "25",
+                "other"
+              ]
+            ]
+          },
+          {
+            "not": {
+              "includes": [
+                "benefits",
+                "income_supplement"
+              ]
+            }
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "1"
+                    ]
+                  },
+                  {
+                    "in": [
+                      "income_band",
+                      [
+                        "b1",
+                        "b2",
+                        "b3"
+                      ]
+                    ]
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "2"
+                    ]
+                  },
+                  {
+                    "in": [
+                      "income_band",
+                      [
+                        "b1",
+                        "b2",
+                        "b3",
+                        "b4"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "status_if_met": "likely",
+      "status_if_partial": "check",
+      "why": "לפי סעיף 9 לחוק האזרחים הוותיקים, אזרח ותיק שהכנסתו אינה עולה על השכר הממוצע (13,623 ₪ נכון לינואר 2026; 20,434.5 ₪ כששני אזרחים ותיקים גרים בדירה) זכאי ל-30% הנחה על עד 100 מ\"ר. הרשות חייבת לתת אותה — אבל רק אחרי בקשה בכתב. בפועל רוב מי שמקבלים הנחת אזרח ותיק מקבלים 25% בלבד, ורק מעטים את ה-30%: מבקר המדינה מצא (2023) שב-7 מ-9 רשויות שנבדקו רק 1%–5% מהאזרחים הוותיקים קיבלו את ה-30%.",
+      "steps": [
+        "להוריד/לקבל טופס 'בקשה להנחה בארנונה' מהרשות המקומית (רוב הרשויות: באתר, במוקד העירוני או במחלקת הגבייה).",
+        "לצרף הצהרה בכתב על ההכנסות (המכתב שכאן) ואת המסמכים שהרשות מבקשת (תלושי פנסיה/קצבה).",
+        "לשלם את הארנונה עד 31 בדצמבר — בלי זה ההנחה מתבטלת.",
+        "אחרי שאושרה, ההנחה מתחדשת אוטומטית (מעל גיל 70 — כל שנה; מתחת ל-70 — עד 3 שנים ואז הודעה קצרה על ההכנסה).",
+        "אם הרשות מסרבת: להגיש השגה בכתב לגזבר הרשות תוך 90 יום מקבלת חשבון הארנונה; על התשובה אפשר לערור לוועדת הערר תוך 30 יום. אפשר גם להתלונן — חינם — לנציב תלונות הציבור (משרד מבקר המדינה), שטיפל ב-937 תלונות ארנונה בשנים 2023–2025."
+      ],
+      "letter": "L1",
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לאזרחים_ותיקים"
+        },
+        {
+          "label": "נוסח החוק (סעיף 9)",
+          "url": "https://he.wikisource.org/wiki/חוק_האזרחים_הותיקים"
+        },
+        {
+          "label": "הגשת תלונה לנציב תלונות הציבור",
+          "url": "https://www.mevaker.gov.il/he/Ombudsman"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בארנונה לאזרחים ותיקים (עודכן 5.8.2026)",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לאזרחים_ותיקים",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "חוק האזרחים הותיקים, תש\"ן-1989, סעיף 9",
+          "url": "https://he.wikisource.org/wiki/חוק_האזרחים_הותיקים",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "מבקר המדינה, שלטון מקומי 2023, עמ' 622–623 (הפער 30%/25%)",
+          "url": "https://library.mevaker.gov.il/sites/DigitalLibrary/Documents/2023/2023-Shilton/2023-Shilton-202-Vatikim.pdf",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "נציב תלונות הציבור — דוח מיוחד: תלונות הציבור בנושא ארנונה (פברואר 2026), עמ' 12–17",
+          "url": "https://library.mevaker.gov.il/sites/DigitalLibrary/Documents/2026/2026-Ombudsman-Arnona.pdf",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "ההכנסה שנבדקת: כל ההכנסות מכל מקור. אם רק אחד מבני הזוג בגיל פרישה — נבדקת הכנסתו/ה בלבד (לפי לשון החוק; רשויות עשויות לבקש את הכנסת כל הדיירים). הנחה רטרואקטיבית — לפי כללי כל רשות."
+    },
+    {
+      "id": "arnona_100_income_supplement",
+      "group": "arnona",
+      "title": "הנחה של 100% בארנונה למקבל/ת השלמת הכנסה",
+      "value": "פטור מלא מארנונה על עד 100 מ\"ר — הנחת חובה",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "derived.retirement_age_reached",
+              true
+            ]
+          },
+          {
+            "includes": [
+              "benefits",
+              "income_supplement"
+            ]
+          },
+          {
+            "in": [
+              "housing",
+              [
+                "owner",
+                "renter"
+              ]
+            ]
+          },
+          {
+            "eq": [
+              "arnona_in_name",
+              "yes"
+            ]
+          },
+          {
+            "not": {
+              "eq": [
+                "arnona_discount",
+                "100"
+              ]
+            }
+          }
+        ]
+      },
+      "status_if_met": "likely",
+      "status_if_partial": "check",
+      "why": "לפי סעיף 9(ב) לחוק האזרחים הוותיקים, אזרח ותיק שמקבל השלמת הכנסה (או הבטחת הכנסה) והכנסתו אינה עולה על השכר הממוצע זכאי להנחה של 100% על עד 100 מ\"ר. הרשות חייבת לתת אותה.",
+      "steps": [
+        "לבקש מביטוח לאומי אישור על קבלת השלמת הכנסה (באתר האישי או *6050).",
+        "להגיש לרשות המקומית טופס בקשה להנחה + האישור + המכתב שכאן.",
+        "לוודא שהארנונה משולמת עד 31 בדצמבר.",
+        "ההנחה מתחדשת אוטומטית כל שנה."
+      ],
+      "letter": "L2",
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לאזרחים_ותיקים"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בארנונה לאזרחים ותיקים",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לאזרחים_ותיקים",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "חוק האזרחים הותיקים, סעיף 9(ב)",
+          "url": "https://he.wikisource.org/wiki/חוק_האזרחים_הותיקים",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "arnona_100_small_pension",
+      "group": "arnona",
+      "title": "הנחה של 100% בארנונה לאזרח ותיק עם פנסיה קטנה (סעיף 13א)",
+      "value": "פטור מלא על עד 100 מ\"ר — למי שלא מקבל השלמת הכנסה רק בגלל פנסיה קטנה",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "derived.retirement_age_reached",
+              true
+            ]
+          },
+          {
+            "not": {
+              "includes": [
+                "benefits",
+                "income_supplement"
+              ]
+            }
+          },
+          {
+            "in": [
+              "pension_status",
+              [
+                "pension_161d_filed",
+                "pension_161d_not_filed",
+                "pension_161d_unknown"
+              ]
+            ]
+          },
+          {
+            "in": [
+              "income_band",
+              [
+                "b1"
+              ]
+            ]
+          },
+          {
+            "in": [
+              "housing",
+              [
+                "owner",
+                "renter"
+              ]
+            ]
+          },
+          {
+            "eq": [
+              "arnona_in_name",
+              "yes"
+            ]
+          },
+          {
+            "not": {
+              "eq": [
+                "arnona_discount",
+                "100"
+              ]
+            }
+          }
+        ]
+      },
+      "status_if_met": "check",
+      "status_if_partial": "check",
+      "why": "סעיף 13א לחוק האזרחים הוותיקים: מי שהחל להיות מבוטח בפנסיה אחרי 2008, שהפנסיה שלו עד 3,345.87 ₪ לחודש (יחיד) או 5,273.53 ₪ (זוג) נכון ל-2026 — 24.3%/38.3% מהשכר הממוצע, ושבלעדיה היה זכאי להשלמת הכנסה — זכאי לאותן הטבות, כולל 100% ארנונה. צריך אישור מביטוח לאומי.",
+      "steps": [
+        "לפנות לביטוח לאומי (*6050) ולבקש בדיקת זכאות לפי סעיף 13א לחוק האזרחים הוותיקים ואישור לרשות המקומית.",
+        "להגיש את האישור לרשות המקומית עם טופס בקשה להנחה."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לאזרחים_ותיקים"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בארנונה לאזרחים ותיקים (סעיף 13א)",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לאזרחים_ותיקים",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "חל רק על מי שהתחיל להיות מבוטח בפנסיה מ-1.1.2008 ואילך (צו ההרחבה לפנסיה חובה). מי שיש לו פנסיה ותיקה — לא."
+    },
+    {
+      "id": "arnona_100_old_age_disabled",
+      "group": "arnona",
+      "title": "הנחה של 100% בארנונה למקבל/ת קצבת זקנה לנכה",
+      "value": "פטור מלא על עד 100 מ\"ר — הנחת חובה למי שעבר/ה מקצבת נכות כללית לקצבת אזרח ותיק",
+      "conditions": {
+        "all": [
+          {
+            "includes": [
+              "benefits",
+              "old_age_disabled"
+            ]
+          },
+          {
+            "in": [
+              "housing",
+              [
+                "owner",
+                "renter"
+              ]
+            ]
+          },
+          {
+            "eq": [
+              "arnona_in_name",
+              "yes"
+            ]
+          },
+          {
+            "not": {
+              "eq": [
+                "arnona_discount",
+                "100"
+              ]
+            }
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "1"
+                    ]
+                  },
+                  {
+                    "in": [
+                      "income_band",
+                      [
+                        "b1",
+                        "b2",
+                        "b3"
+                      ]
+                    ]
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "2"
+                    ]
+                  },
+                  {
+                    "in": [
+                      "income_band",
+                      [
+                        "b1",
+                        "b2",
+                        "b3",
+                        "b4"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "status_if_met": "likely",
+      "status_if_partial": "check",
+      "why": "לפי תקנות האזרחים הוותיקים (הטבות לאזרח ותיק שמקבל קצבת זקנה לנכה), מי שקיבל/ה קצבת נכות כללית לפני הפרישה וממשיך/ה לקבל קצבת זקנה לנכה זכאי/ת להנחה של 100% בארנונה על עד 100 מ\"ר, בכפוף למבחן ההכנסה של חוק האזרחים הוותיקים (עד השכר הממוצע; 150% כששני אזרחים ותיקים גרים בדירה). זו הנחת חובה.",
+      "steps": [
+        "לבקש מביטוח לאומי אישור על קבלת קצבת זקנה לנכה (*6050).",
+        "להגיש לרשות המקומית טופס בקשה להנחה + האישור + הצהרת הכנסה.",
+        "לשלם את הארנונה עד 31 בדצמבר."
+      ],
+      "letter": "L2",
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_למקבלי_קצבת_זיקנה_לנכה"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בארנונה למקבלי קצבת זיקנה לנכה",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_למקבלי_קצבת_זיקנה_לנכה",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "במכתב L2 יש להחליף את שם הגמלה ל'קצבת זקנה לנכה' ואת הסעיף לתקנות האזרחים הוותיקים (הטבות לאזרח ותיק שמקבל קצבת זקנה לנכה)."
+    },
+    {
+      "id": "arnona_25",
+      "group": "arnona",
+      "title": "הנחה של עד 25% בארנונה לאזרח ותיק המקבל קצבה",
+      "value": "עד 25% על 100 מ\"ר — הנחת רשות; ברשויות רבות ניתנת בפועל",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "derived.retirement_age_reached",
+              true
+            ]
+          },
+          {
+            "any": [
+              {
+                "includes": [
+                  "benefits",
+                  "old_age"
+                ]
+              },
+              {
+                "includes": [
+                  "benefits",
+                  "survivors"
+                ]
+              }
+            ]
+          },
+          {
+            "in": [
+              "housing",
+              [
+                "owner",
+                "renter"
+              ]
+            ]
+          },
+          {
+            "eq": [
+              "arnona_in_name",
+              "yes"
+            ]
+          },
+          {
+            "eq": [
+              "arnona_discount",
+              "none"
+            ]
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "1"
+                    ]
+                  },
+                  {
+                    "in": [
+                      "income_band",
+                      [
+                        "b4",
+                        "b5"
+                      ]
+                    ]
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "2"
+                    ]
+                  },
+                  {
+                    "in": [
+                      "income_band",
+                      [
+                        "b5"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "status_if_met": "check",
+      "status_if_partial": "check",
+      "why": "מקבלי קצבת אזרח ותיק, קצבת שאירים, גמלת תלויים או קצבת נכות מעבודה עשויים לקבל עד 25% הנחה (תקנות ההנחה מארנונה, תקנה 2(א)(1)). זו הנחת רשות — הרשות רשאית לקבוע כללים או לא להעניקה. מקבלי קצבת זקנה לנכה זכאים ל-100% (כרטיס נפרד).",
+      "steps": [
+        "להגיש לרשות המקומית טופס בקשה להנחה בארנונה + אישור מביטוח לאומי על קבלת הקצבה (*6050).",
+        "לשלם את הארנונה עד 31 בדצמבר."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לאזרחים_ותיקים"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בארנונה לאזרחים ותיקים",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לאזרחים_ותיקים",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "arnona_siud",
+      "group": "arnona",
+      "title": "הנחה של עד 70% בארנונה למקבל/ת גמלת סיעוד",
+      "value": "עד 70% הנחה — אמורה להינתן אוטומטית לפי רשימות ביטוח לאומי",
+      "conditions": {
+        "all": [
+          {
+            "includes": [
+              "benefits",
+              "siud"
+            ]
+          },
+          {
+            "in": [
+              "housing",
+              [
+                "owner",
+                "renter"
+              ]
+            ]
+          },
+          {
+            "eq": [
+              "arnona_in_name",
+              "yes"
+            ]
+          },
+          {
+            "not": {
+              "eq": [
+                "arnona_discount",
+                "100"
+              ]
+            }
+          }
+        ]
+      },
+      "status_if_met": "check",
+      "status_if_partial": "check",
+      "why": "מקבלי גמלת סיעוד עשויים לקבל עד 70% הנחה (תקנות ההנחה מארנונה). הרשות מקבלת רשימה שנתית מביטוח לאומי, אבל כדאי לבדוק שההנחה אכן מופיעה בחשבון.",
+      "steps": [
+        "לבדוק בחשבון הארנונה אם מופיעה הנחת 'גמלת סיעוד'.",
+        "אם לא — להגיש לרשות את אישור הזכאות לגמלת סיעוד מביטוח לאומי.",
+        "אם יש זכאות גם להנחה גבוהה יותר (למשל 100% למקבלי השלמת הכנסה) — ניתנת הנחה אחת, הגבוהה מביניהן."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_למקבלי_גמלת_סיעוד"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בארנונה למקבלי גמלת סיעוד",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_למקבלי_גמלת_סיעוד",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "הנחת רשות — הרשות רשאית לקבוע כללים."
+    },
+    {
+      "id": "arnona_survivor",
+      "group": "arnona",
+      "title": "הנחה בארנונה לניצולי שואה ולנכי המלחמה בנאצים",
+      "value": "עד 66% (נכי המלחמה בנאצים: 2/3 — חובה) על 70 מ\"ר (90 מ\"ר למשפחה של 5+)",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "survivor_payment",
+              "yes"
+            ]
+          },
+          {
+            "in": [
+              "housing",
+              [
+                "owner",
+                "renter"
+              ]
+            ]
+          },
+          {
+            "eq": [
+              "arnona_in_name",
+              "yes"
+            ]
+          },
+          {
+            "not": {
+              "eq": [
+                "arnona_discount",
+                "100"
+              ]
+            }
+          }
+        ]
+      },
+      "status_if_met": "check",
+      "status_if_partial": "check",
+      "why": "מקבלי תגמול ממשרד האוצר (הרשות לזכויות ניצולי השואה), קצבה מקרן סעיף 2, רנטה מגרמניה (BEG) ועוד — עשויים לקבל עד 66% הנחה. למקבלי תגמול מהאוצר ההנחה אמורה להינתן אוטומטית.",
+      "steps": [
+        "לבדוק בחשבון הארנונה אם ההנחה מופיעה.",
+        "אם לא — לפנות למרכז המידע של הרשות לזכויות ניצולי השואה 03-5682651 / *5105, או להגיש בקשה לרשות המקומית עם אישור על התגמול.",
+        "ניתנת הנחה אחת בלבד — הגבוהה מביניהן."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לניצולי_שואה_ולנכי_המלחמה_בנאצים"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בארנונה לניצולי שואה ולנכי המלחמה בנאצים",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לניצולי_שואה_ולנכי_המלחמה_בנאצים",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "arnona_disability",
+      "group": "arnona",
+      "title": "הנחה בארנונה בגלל נכות",
+      "value": "נכות רפואית 90%+: עד 40% · אי-כושר 75%+: עד 80% · תעודת עיוור: עד 90% · נכה צה\"ל: 2/3 · מקבלי קצבת זקנה לנכה: 100% (חובה, כרטיס נפרד)",
+      "conditions": {
+        "all": [
+          {
+            "any": [
+              {
+                "includes": [
+                  "disability",
+                  "medical90"
+                ]
+              },
+              {
+                "includes": [
+                  "disability",
+                  "incapacity75"
+                ]
+              },
+              {
+                "includes": [
+                  "disability",
+                  "blind"
+                ]
+              },
+              {
+                "includes": [
+                  "disability",
+                  "idf"
+                ]
+              }
+            ]
+          },
+          {
+            "in": [
+              "housing",
+              [
+                "owner",
+                "renter"
+              ]
+            ]
+          },
+          {
+            "eq": [
+              "arnona_in_name",
+              "yes"
+            ]
+          },
+          {
+            "not": {
+              "eq": [
+                "arnona_discount",
+                "100"
+              ]
+            }
+          }
+        ]
+      },
+      "status_if_met": "check",
+      "status_if_partial": "check",
+      "why": "תקנות ההנחה מארנונה קובעות הנחות לפי סוג הנכות (רובן הנחת רשות). מי שעבר/ה מקצבת נכות כללית לקצבת זקנה לנכה זכאי/ת ל-100% — הנחת חובה — ראו הכרטיס הנפרד.",
+      "steps": [
+        "להגיש לרשות טופס בקשה להנחה + אישור על הנכות (ביטוח לאומי *6050 / משרד הביטחון / תעודת עיוור).",
+        "ניתנת הנחה אחת בלבד — הגבוהה מביניהן."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הנחה לנכים — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לנכים"
+        },
+        {
+          "label": "עיוורים ולקויי ראייה — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לעיוורים_ולקויי_ראייה"
+        },
+        {
+          "label": "נכי צה\"ל — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לנכי_צה\"ל"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בארנונה לנכים",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לנכים",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "רוב ההנחות כאן הן הנחת רשות."
+    },
+    {
+      "id": "arnona_low_income",
+      "group": "arnona",
+      "title": "הנחה בארנונה לפי מבחן הכנסה (עד 90%)",
+      "value": "יחיד עם הכנסה עד 3,513 ₪: עד 90%; עד 5,857 ₪: 30%–70% (טבלת 2026)",
+      "conditions": {
+        "all": [
+          {
+            "in": [
+              "income_band",
+              [
+                "b1"
+              ]
+            ]
+          },
+          {
+            "not": {
+              "includes": [
+                "benefits",
+                "income_supplement"
+              ]
+            }
+          },
+          {
+            "in": [
+              "housing",
+              [
+                "owner",
+                "renter"
+              ]
+            ]
+          },
+          {
+            "eq": [
+              "arnona_in_name",
+              "yes"
+            ]
+          },
+          {
+            "not": {
+              "eq": [
+                "arnona_discount",
+                "100"
+              ]
+            }
+          }
+        ]
+      },
+      "status_if_met": "check",
+      "status_if_partial": "check",
+      "why": "לפי טבלת ההכנסות לשנת 2026 (הכנסה ברוטו ממוצעת ב-2025 של כל המתגוררים בדירה): יחיד עד 3,513 ₪ — עד 90%; 3,513–4,295 — עד 70%; 4,295–5,076 — עד 50%; 5,076–5,857 — עד 30%. זוג: עד 5,621 — 90%; עד 9,372 — 30%. קצבת אזרח ותיק לא נספרת כהכנסה לצורך הטבלה. זו הנחת רשות ודורשת בקשה כל שנה.",
+      "steps": [
+        "להגיש לרשות טופס בקשה להנחה לפי מבחן הכנסה + אישורי הכנסה של כל הדיירים.",
+        "להשוות: אם 30% לפי חוק האזרחים הוותיקים גבוה יותר — הוא הנחת חובה ומתחדש אוטומטית."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לבעלי_הכנסה_נמוכה"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בארנונה לבעלי הכנסה נמוכה (טבלת 2026)",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לבעלי_הכנסה_נמוכה",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "נספרת הכנסת כל המתגוררים בדירה."
+    },
+    {
+      "id": "arnona_not_holder",
+      "group": "arnona",
+      "title": "הנחות הארנונה ניתנות רק ל'מחזיק' הרשום",
+      "value": "אם חשבון הארנונה על שם אדם אחר — ההנחה לאזרח ותיק לא חלה",
+      "conditions": {
+        "any": [
+          {
+            "eq": [
+              "housing",
+              "with_family"
+            ]
+          },
+          {
+            "all": [
+              {
+                "in": [
+                  "housing",
+                  [
+                    "owner",
+                    "renter"
+                  ]
+                ]
+              },
+              {
+                "eq": [
+                  "arnona_in_name",
+                  "no"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "status_if_met": "info",
+      "status_if_partial": "info",
+      "why": "לפי החוק והתקנות ההנחה ניתנת ל'מחזיק בנכס' עבור 'הדירה המשמשת למגוריו'. אם ההורה גר/ה בדירה שהארנונה בה רשומה על שם אחר, כדאי לשאול במחלקת הגבייה מה נדרש כדי שהמחזיק הרשום יהיה מי שגר בפועל — ולזכור שיש הנחה אחת לנכס.",
+      "steps": [
+        "לברר במחלקת הגבייה של הרשות מה נדרש כדי שהמחזיק הרשום יהיה מי שגר בדירה בפועל (עצה פרוצדורלית — לא נבדקה מול כל רשות)."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "פורטל ארנונה — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/ארנונה"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בארנונה לאזרחים ותיקים ('הבקשה חייבת להיות מוגשת על ידי האדם הרשום… כמחזיק בנכס')",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לאזרחים_ותיקים",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "חוק האזרחים הותיקים, סעיף 9(א) — 'הדירה המשמשת למגוריו'",
+          "url": "https://he.wikisource.org/wiki/חוק_האזרחים_הותיקים",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "electricity",
+      "group": "utilities",
+      "title": "הנחה של 50% בחשבון החשמל",
+      "value": "50% על 400 קוט\"ש הראשונים בכל חודש (800 בחשבון דו-חודשי) — עד כ-129 ₪ לחודש / כ-257 ₪ לחשבון (ינואר 2026), ורטרואקטיבית עם ריבית",
+      "conditions": {
+        "any": [
+          {
+            "all": [
+              {
+                "includes": [
+                  "benefits",
+                  "income_supplement"
+                ]
+              },
+              {
+                "any": [
+                  {
+                    "includes": [
+                      "benefits",
+                      "old_age"
+                    ]
+                  },
+                  {
+                    "includes": [
+                      "benefits",
+                      "survivors"
+                    ]
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  "derived.retirement_age_reached",
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "includes": [
+              "benefits",
+              "old_age_disabled"
+            ]
+          },
+          {
+            "all": [
+              {
+                "includes": [
+                  "benefits",
+                  "siud"
+                ]
+              },
+              {
+                "in": [
+                  "siud_level",
+                  [
+                    "5",
+                    "6"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "includes": [
+                  "benefits",
+                  "siud"
+                ]
+              },
+              {
+                "eq": [
+                  "siud_level",
+                  "4"
+                ]
+              },
+              {
+                "eq": [
+                  "derived.is_90plus",
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              "survivor_payment",
+              "yes"
+            ]
+          },
+          {
+            "includes": [
+              "disability",
+              "idf"
+            ]
+          }
+        ]
+      },
+      "status_if_met": "likely",
+      "status_if_partial": "check",
+      "variants": {
+        "contract_other": {
+          "when": {
+            "eq": [
+              "electricity_contract",
+              "other"
+            ]
+          },
+          "title_suffix": " — צריך להעביר את החוזה על שם הזכאי/ת",
+          "status": "likely"
+        },
+        "survivor_or_idf": {
+          "when": {
+            "any": [
+              {
+                "eq": [
+                  "survivor_payment",
+                  "yes"
+                ]
+              },
+              {
+                "includes": [
+                  "disability",
+                  "idf"
+                ]
+              }
+            ]
+          },
+          "status": "check",
+          "note": "לניצולי שואה ונכי המלחמה בנאצים — מקבלי 'תגמול לפי הכנסה'/'תגמול מוגדל לפי הכנסה', וכן מקבלי השלמת הכנסה מביטוח לאומי שמקבלים גם קצבה מקרן סעיף 2 / קצבה ליוצאי מחנות וגטאות; לנכי צה\"ל — מ-50% נכות (או תגמולים מיוחדים)."
+        }
+      },
+      "why": "ביטוח לאומי מעביר לחברת החשמל מדי חודש רשימת זכאים, וההנחה ניתנת אוטומטית — אבל רק אם השם ומספר הזהות של הזכאי/ת תואמים את החוזה עם חברת החשמל. מבקר המדינה מצא (2024) שכ-158,000 זכאים לא מקבלים את ההנחה, רובם משום שאין להם חוזה עם חברת החשמל על שמם (אינם רשומים כלקוחות).",
+      "steps": [
+        "לבדוק בחשבון החשמל אם מופיעה שורה 'הנחה לזכאים'.",
+        "אם החוזה על שם הזכאי/ת ואין הנחה — להתקשר 103 ולעדכן שם ומספר זהות לפי מספר החוזה. ההנחה תינתן רטרואקטיבית כולל ריבית.",
+        "אם החוזה על שם אדם אחר — לבקש להעביר את החוזה על שם הזכאי/ת: בטלפון 103, או בפקס 03-7131899 עם המכתב שכאן (מספר חוזה, שם ות\"ז של הזכאי/ת, טלפון, חתימת בעל החוזה הנוכחי). לאשר קבלה ב-103 אחרי כ-10 דקות; טיפול כשני ימי עבודה.",
+        "הוראת קבע שרוצים להשאיר — לציין בבקשה; צו אפוטרופסות — לצרף צילום."
+      ],
+      "letter": "L3",
+      "links": [
+        {
+          "label": "מקבלי השלמת הכנסה — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בחשבון_חשמל_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה"
+        },
+        {
+          "label": "מקבלי גמלת סיעוד — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בחשבון_חשמל_למקבלי_גמלת_סיעוד"
+        },
+        {
+          "label": "פורטל חשמל — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/חשמל"
+        }
+      ],
+      "phone": "103",
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בחשבון חשמל למקבלי קצבת זיקנה עם השלמת הכנסה (עודכן 18.1.2026)",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בחשבון_חשמל_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "מבקר המדינה 74א (ינואר 2024), השירות לציבור בחברת החשמל — תקציר עמ' 1209; גוף הדוח עמ' 1281–1283",
+          "url": "https://library.mevaker.gov.il/sites/DigitalLibrary/Documents/2024/2024.01-74A/2024-74A-303-Electric.pdf",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "הנחה אחת למשק בית (הגבוהה). מקבלי קצבת נכות כללית לפני גיל פרישה אינם ברשימת הזכאים (אלא דרך קצבת זקנה לנכה / שר\"מ). גמלת סיעוד: רמות 5–6, או רמה 4 מגיל 90."
+    },
+    {
+      "id": "water",
+      "group": "utilities",
+      "title": "הטבה בחשבון המים — עוד 3.5 מ\"ק בחודש בתעריף הנמוך",
+      "value": "הכמות בתעריף הנמוך מוכפלת (7 מ\"ק בחודש במקום 3.5) — אוטומטי לפי ת\"ז וכתובת",
+      "conditions": {
+        "any": [
+          {
+            "all": [
+              {
+                "includes": [
+                  "benefits",
+                  "income_supplement"
+                ]
+              },
+              {
+                "any": [
+                  {
+                    "includes": [
+                      "benefits",
+                      "old_age"
+                    ]
+                  },
+                  {
+                    "includes": [
+                      "benefits",
+                      "survivors"
+                    ]
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  "derived.retirement_age_reached",
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "includes": [
+              "benefits",
+              "old_age_disabled"
+            ]
+          },
+          {
+            "all": [
+              {
+                "includes": [
+                  "benefits",
+                  "siud"
+                ]
+              },
+              {
+                "in": [
+                  "siud_level",
+                  [
+                    "3",
+                    "4",
+                    "5",
+                    "6"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "eq": [
+              "survivor_payment",
+              "yes"
+            ]
+          }
+        ]
+      },
+      "status_if_met": "check",
+      "status_if_partial": "check",
+      "why": "ביטוח לאומי (או הרשות לזכויות ניצולי השואה) מעביר את הזכאים לרשות המים, והיא לספק המים המקומי. ההטבה אמורה להינתן אוטומטית — כדאי לוודא.",
+      "steps": [
+        "לפנות לספק המים (תאגיד המים / הרשות) עם מספר תעודת הזהות ולשאול אם הזכאי/ת ברשימת ההטבה.",
+        "אם לא — לפנות לביטוח לאומי *6050 (או לתאגיד המים, לניצולי שואה).",
+        "אם הכתובת שונתה — למלא טופס העברת הטבה אצל ספק המים."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "מקבלי השלמת הכנסה — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/הטבה_בחשבון_המים_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה"
+        },
+        {
+          "label": "פורטל חשבון מים — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/חשבון_מים"
+        }
+      ],
+      "phone": "*6050",
+      "sources": [
+        {
+          "name": "כל זכות — הטבה בחשבון המים למקבלי קצבת זיקנה עם השלמת הכנסה",
+          "url": "https://www.kolzchut.org.il/he/הטבה_בחשבון_המים_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "גמלת סיעוד: רמות 3–6 (רחב יותר מהנחת החשמל). ניצולי שואה — רק מקבלי תגמול לפי הכנסה / מוגדל לפי הכנסה."
+    },
+    {
+      "id": "income_supplement",
+      "group": "btl",
+      "title": "תוספת השלמת הכנסה לקצבת אזרח ותיק",
+      "value": "משלימה את ההכנסה עד 4,375 ₪ ליחיד / 6,912 ₪ לזוג (ינואר 2026) — ופותחת: 100% ארנונה, הנחת חשמל ומים, 50% בתרופות, פטור מהשתתפות עצמית, מענק חימום, 50% בבזק",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "derived.retirement_age_reached",
+              true
+            ]
+          },
+          {
+            "any": [
+              {
+                "includes": [
+                  "benefits",
+                  "old_age"
+                ]
+              },
+              {
+                "includes": [
+                  "benefits",
+                  "survivors"
+                ]
+              },
+              {
+                "includes": [
+                  "benefits",
+                  "old_age_disabled"
+                ]
+              }
+            ]
+          },
+          {
+            "not": {
+              "includes": [
+                "benefits",
+                "income_supplement"
+              ]
+            }
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "1"
+                    ]
+                  },
+                  {
+                    "in": [
+                      "income_band",
+                      [
+                        "b1",
+                        "b2"
+                      ]
+                    ]
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "2"
+                    ]
+                  },
+                  {
+                    "in": [
+                      "income_band",
+                      [
+                        "b1",
+                        "b2"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "status_if_met": "likely",
+      "status_if_partial": "check",
+      "variants": {
+        "single_b2": {
+          "when": {
+            "all": [
+              {
+                "eq": [
+                  "seniors_in_home",
+                  "1"
+                ]
+              },
+              {
+                "eq": [
+                  "income_band",
+                  "b2"
+                ]
+              }
+            ]
+          },
+          "status": "check",
+          "note": "בהכנסה של 4,400–7,000 ₪ ליחיד הזכאות אפשרית רק אם חלק ניכר מההכנסה הוא פנסיה (1,790 ₪ הראשונים מפנסיה לא נספרים) — לכן 'שווה לבדוק'."
+        }
+      },
+      "why": "מי שהקצבה והכנסותיו נמוכות מהסכום המזערי זכאי לתוספת מביטוח לאומי. 1,790 ₪ הראשונים מפנסיה (2,823 ₪ לזוג) לא נספרים. אפשר לקבל רטרואקטיבית עד 12 חודשים. מחקר של ביטוח לאומי מ-2013, המצוטט בדוח נציב תלונות הציבור על בני הגיל השלישי, מצא ש-86% ממקבלי הגמלאות היו מגישים בקשה 'אם תהליך הבקשה לגמלה היה פשוט יותר'.",
+      "steps": [
+        "למלא טופס בל/430 (תביעה להשלמת הכנסה למקבלי קצבה) — מקוון באתר ביטוח לאומי או בסניף.",
+        "לצרף: דפי חשבון בנק של 12 חודשים, אישור על פיקדונות/קופות גמל, אישורי הכנסה של שני בני הזוג.",
+        "לזכור את מבחני הרכוש: רכב ששוויו מעל 65,343 ₪ (או שני רכבים) שולל בדרך כלל, למעט מקרים מסוימים; חסכונות מעל 41,528 ₪ (יחיד) / 62,292 ₪ (זוג) נספרים כהכנסה; דירת המגורים לא נספרת.",
+        "אחרי האישור — לבקש אישור לרשות המקומית (100% ארנונה) ולוודא הנחת חשמל ומים."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "תנאי הזכאות — ביטוח לאומי",
+          "url": "https://www.btl.gov.il/benefits/old_age/hashHachZ/Pages/tnaiZakautTosefet.aspx"
+        },
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/תוספת_השלמת_הכנסה_לקצבת_זיקנה"
+        },
+        {
+          "label": "טופס 430 (PDF)",
+          "url": "https://www.btl.gov.il/טפסים ואישורים/Documents/t430.pdf"
+        }
+      ],
+      "phone": "*6050",
+      "sources": [
+        {
+          "name": "ביטוח לאומי — תנאי זכאות לתוספת השלמת הכנסה (01.01.2026)",
+          "url": "https://www.btl.gov.il/benefits/old_age/hashHachZ/Pages/tnaiZakautTosefet.aspx",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "ביטוח לאומי — נכסים",
+          "url": "https://www.btl.gov.il/benefits/old_age/hashHachZ/Pages/nechasim.aspx",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "נציב תלונות הציבור, דוח מיוחד 3 (פברואר 2023) — חסמים בירוקרטיים, עמ' 45 בקובץ ה-PDF (מחקר ביטוח לאומי 2013: 86%)",
+          "url": "https://library.mevaker.gov.il/sites/DigitalLibrary/Documents/2023/2023-NTZ-3rd-Age.pdf",
+          "verified": "2026-09-14 (נקרא במלואו דרך הדפדפן; מספור העמודים המודפס לא אומת)"
+        }
+      ],
+      "caveats": "הכנסות בן/בת הזוג נספרות. הסכום המשולם משתנה לפי גיל (עד 70 / 70–80 / 80+)."
+    },
+    {
+      "id": "siud_claim",
+      "group": "btl",
+      "title": "גמלת סיעוד — שעות טיפול בבית או תשלום",
+      "value": "5.5–30 שעות טיפול בשבוע לפי רמת התלות, או כסף (ברמות 2–6: 248 ₪ לחודש לכל שעה שבועית; ברמה 1: 311 ₪ — אוגוסט 2026). הזכאות מתחילה 7 ימים מהגשת התביעה",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "derived.retirement_age_reached",
+              true
+            ]
+          },
+          {
+            "eq": [
+              "adl_help",
+              "yes"
+            ]
+          },
+          {
+            "not": {
+              "includes": [
+                "benefits",
+                "siud"
+              ]
+            }
+          },
+          {
+            "not": {
+              "eq": [
+                "housing",
+                "institution"
+              ]
+            }
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "1"
+                    ]
+                  },
+                  {
+                    "in": [
+                      "income_band",
+                      [
+                        "b1",
+                        "b2",
+                        "b3",
+                        "b4"
+                      ]
+                    ]
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "2"
+                    ]
+                  },
+                  {
+                    "in": [
+                      "income_band",
+                      [
+                        "b1",
+                        "b2",
+                        "b3",
+                        "b4",
+                        "b5"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "status_if_met": "likely",
+      "status_if_partial": "check",
+      "variants": {
+        "half_band": {
+          "when": {
+            "any": [
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "1"
+                    ]
+                  },
+                  {
+                    "eq": [
+                      "income_band",
+                      "b4"
+                    ]
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "eq": [
+                      "seniors_in_home",
+                      "2"
+                    ]
+                  },
+                  {
+                    "eq": [
+                      "income_band",
+                      "b5"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "status": "check",
+          "note": "בהכנסה זו הגמלה עשויה להיות מופחתת ב-50% (יחיד עד 20,654 ₪; זוג עד 30,980 ₪)."
+        }
+      },
+      "why": "מי שבגיל פרישה, גר/ה בבית, וזקוק/ה לעזרה בפעולות יומיומיות או להשגחה — זכאי/ת לגמלת סיעוד, בכפוף למבחן תלות ומבחן הכנסה (מלאה: יחיד עד 13,769 ₪, זוג עד 20,654 ₪, נכון ל-1.4.2026; קצבת אזרח ותיק ופנסיה נספרות בהכנסה). את התביעה יכול להגיש גם בן משפחה.",
+      "steps": [
+        "למלא טופס בל/2600 — מקוון באתר ביטוח לאומי (גם בן משפחה יכול).",
+        "לצרף תמצית תיק רפואי מקופת החולים (אבחנות ותרופות), אישורי הכנסה של 3 חודשים של שני בני הזוג, וסיכום אשפוז אם היה.",
+        "הערכת התלות נעשית לפי המסמכים או בביקור בית; מגיל 90 אפשר לבחור בדיקה של רופא גריאטר. יש מסלול מהיר (דיאליזה, כימותרפיה, אחרי ניתוח, עיוור/ת שגר/ה לבד).",
+        "אם התוצאה לא סבירה — ערר תוך 60 יום."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "תנאי זכאות — ביטוח לאומי",
+          "url": "https://www.btl.gov.il/benefits/Long_Term_Care/Pages/zakaut.aspx"
+        },
+        {
+          "label": "הגשת תביעה — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/הגשת_תביעה_לגמלת_סיעוד"
+        },
+        {
+          "label": "מבחן הכנסות — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/מבחן_הכנסות_לצורך_קבלת_גמלת_סיעוד"
+        }
+      ],
+      "phone": "*2637",
+      "sources": [
+        {
+          "name": "ביטוח לאומי — זכאות לגמלת סיעוד",
+          "url": "https://www.btl.gov.il/benefits/Long_Term_Care/Pages/zakaut.aspx",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "ביטוח לאומי — מבחן הכנסות לסיעוד (01.04.2026)",
+          "url": "https://www.btl.gov.il/benefits/Long_Term_Care/Pages/income.aspx",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "כל זכות — הגשת תביעה לגמלת סיעוד (עודכן 23.3.2026)",
+          "url": "https://www.kolzchut.org.il/he/הגשת_תביעה_לגמלת_סיעוד",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "מי שמקבל/ת שר\"מ או תגמולים ממשרד הביטחון צריך/ה לבחור. באשפוז — הגמלה נמשכת 30 יום בלבד."
+    },
+    {
+      "id": "old_age_claim",
+      "group": "btl",
+      "title": "קצבת אזרח ותיק — עוד לא הוגשה תביעה?",
+      "value": "1,838 ₪ ליחיד / 2,762 ₪ לזוג בסיס (ינואר 2026) + ותק. רטרואקטיבית עד 12 חודשים (מגיל 70 — עד 48 חודשים); מגיל 70 — בלי מבחן הכנסות",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "derived.retirement_age_reached",
+              true
+            ]
+          },
+          {
+            "includes": [
+              "benefits",
+              "none"
+            ]
+          }
+        ]
+      },
+      "status_if_met": "likely",
+      "status_if_partial": "check",
+      "why": "הקצבה לא משולמת אוטומטית — צריך להגיש תביעה. בין גיל הפרישה ל-70 יש מבחן הכנסות מעבודה בלבד (פנסיה לא נספרת): קצבה מלאה עד 10,113 ₪ ליחיד. מגיל 70 אין מבחן הכנסות.",
+      "steps": [
+        "למלא טופס בל/480 — מקוון (govforms) או בסניף. הטופס כולל גם את הבקשה להשלמת הכנסה.",
+        "לצרף אישור על סיום/צמצום עבודה או הצהרת הכנסות.",
+        "מי שדחה/תה את הקצבה בגלל עבודה — זכאי/ת לתוספת דחייה של 5% לכל שנה."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "אופן הגשת התביעה — ביטוח לאומי",
+          "url": "https://www.btl.gov.il/benefits/old_age/Pages/אופן הגשת התביעה.aspx"
+        },
+        {
+          "label": "טופס 480 מקוון",
+          "url": "https://www.btl.gov.il/טפסים ואישורים/tfassim-mekuvanim/Pages/Fill480.aspx"
+        }
+      ],
+      "phone": "*6050",
+      "sources": [
+        {
+          "name": "ביטוח לאומי — קצבת אזרח ותיק, אופן הגשת התביעה",
+          "url": "https://www.btl.gov.il/benefits/old_age/Pages/אופן הגשת התביעה.aspx",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "ביטוח לאומי — סכומי הקצבה (01.01.2026)",
+          "url": "https://www.btl.gov.il/benefits/old_age/Shum/Pages/Shum.aspx",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "transport_67",
+      "group": "transport",
+      "title": "נסיעה חינם בתחבורה הציבורית מגיל 67",
+      "value": "חינם בכל האוטובוסים, הרכבות והרכבת הקלה מ-25.4.2025 — רק עם פרופיל 'זהב-קו' טעון",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "derived.is_67plus",
+              true
+            ]
+          },
+          {
+            "not": {
+              "eq": [
+                "ravkav_gold",
+                "yes"
+              ]
+            }
+          }
+        ]
+      },
+      "status_if_met": "likely",
+      "status_if_partial": "check",
+      "why": "מ-25.4.2025 כל תושב/ת ישראל מגיל 67 פטור/ה מתשלום — אבל הפטור ניתן רק דרך פרופיל 'זהב-קו' בכרטיס הרב-קו או באפליקציה. מי שיש לו/ה רב-קו ישן צריך/ה לעדכן את הפרופיל.",
+      "steps": [
+        "לעדכן/להנפיק פרופיל 'זהב-קו': באתר רב-קו אונליין או הופ-און, במרכזי 'על-הקו', או ברשתות השיווק והפארם (כרטיס חדש נשלח הביתה).",
+        "נדרשת תעודה מזהה (ולכרטיס חדש — תמונת פספורט). אפשר לשלוח מיופה כוח: עם אישור חתום של ההורה, תעודות מזהות של שניכם, וכרטיס הרב-קו (או תמונת פספורט) של ההורה.",
+        "יתרה שנשארה בכרטיס — אפשר לבקש החזר."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/פטור_מתשלום_על_נסיעה_בתחבורה_ציבורית_לאזרחים_ותיקים_מגיל_67"
+        },
+        {
+          "label": "רב-קו אונליין",
+          "url": "https://ravkavonline.co.il/he/ravkav-issue-request/order-ravkav-online"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — פטור מתשלום בתחבורה ציבורית מגיל 67 (עודכן 26.5.2025)",
+          "url": "https://www.kolzchut.org.il/he/פטור_מתשלום_על_נסיעה_בתחבורה_ציבורית_לאזרחים_ותיקים_מגיל_67",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "transport_women_62",
+      "group": "transport",
+      "title": "50% הנחה בתחבורה הציבורית לנשים 62–67",
+      "value": "50% בכל אמצעי התחבורה — עם פרופיל ברב-קו/אפליקציה",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "gender",
+              "f"
+            ]
+          },
+          {
+            "gte": [
+              "derived.age",
+              62
+            ]
+          },
+          {
+            "not": {
+              "eq": [
+                "derived.is_67plus",
+                true
+              ]
+            }
+          }
+        ]
+      },
+      "status_if_met": "likely",
+      "status_if_partial": "check",
+      "why": "נשים בגיל 62–67 זכאיות ל-50% הנחה; מגיל 67 — חינם.",
+      "steps": [
+        "לטעון את הפרופיל ברב-קו (תעודה מזהה + תמונת פספורט) באתר רב-קו אונליין, ביישומון או במרכזי השירות."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בתחבורה_הציבורית_לנשים_מגיל_62"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בתחבורה הציבורית לנשים מגיל 62 (עודכן 13.8.2025)",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בתחבורה_הציבורית_לנשים_מגיל_62",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "לגברים 65–67 לא נמצאה הנחה מקבילה."
+    },
+    {
+      "id": "heating_grant",
+      "group": "btl",
+      "title": "מענק חימום — 664 ₪ בכל אוקטובר",
+      "value": "664 ₪ (2026), משולם אוטומטית עם קצבת אוקטובר למקבלי השלמת הכנסה ולמקבלי קצבת זקנה לנכה",
+      "conditions": {
+        "any": [
+          {
+            "all": [
+              {
+                "includes": [
+                  "benefits",
+                  "income_supplement"
+                ]
+              },
+              {
+                "any": [
+                  {
+                    "includes": [
+                      "benefits",
+                      "old_age"
+                    ]
+                  },
+                  {
+                    "includes": [
+                      "benefits",
+                      "survivors"
+                    ]
+                  }
+                ]
+              },
+              {
+                "eq": [
+                  "derived.retirement_age_reached",
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "includes": [
+              "benefits",
+              "old_age_disabled"
+            ]
+          }
+        ]
+      },
+      "status_if_met": "info",
+      "status_if_partial": "info",
+      "why": "מי שמקבל/ת השלמת הכנסה לקצבת אזרח ותיק/שאירים (או קצבת זקנה לנכה) באוקטובר–דצמבר מקבל/ת מענק חימום אוטומטי, ללא קשר לאזור המגורים.",
+      "steps": [
+        "לבדוק בדף הקצבה של אוקטובר. אם לא הגיע — *6050."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/מענק_חימום"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — מענק חימום (עודכן 11.11.2025)",
+          "url": "https://www.kolzchut.org.il/he/מענק_חימום",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "health_income_supplement",
+      "group": "health",
+      "title": "פטור מהשתתפות עצמית ו-50% בתרופות למקבלי השלמת הכנסה",
+      "value": "פטור מתשלום על רופא מקצועי, מרפאות חוץ והדמיה; 50% הנחה בתרופות הסל (55% מגיל 72) — אוטומטי",
+      "conditions": {
+        "all": [
+          {
+            "includes": [
+              "benefits",
+              "income_supplement"
+            ]
+          },
+          {
+            "eq": [
+              "derived.retirement_age_reached",
+              true
+            ]
+          }
+        ]
+      },
+      "status_if_met": "check",
+      "status_if_partial": "check",
+      "why": "ביטוח לאומי מעביר את רשימת מקבלי השלמת הכנסה לקופות החולים, וההטבות ניתנות אוטומטית. כדאי לוודא בקבלה בבית המרקחת.",
+      "steps": [
+        "לבדוק בקבלה מבית המרקחת/הקופה שההנחה מופיעה. אם לא — לפנות לקופה ולביטוח לאומי *6050."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "פטור מתשלומים בקופות — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/פטור_מתשלומים_בקופות_החולים_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה"
+        },
+        {
+          "label": "הנחה בתרופות — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחות_ברכישת_תרופות_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — פטור מתשלומים בקופות החולים למקבלי קצבת זיקנה עם השלמת הכנסה",
+          "url": "https://www.kolzchut.org.il/he/פטור_מתשלומים_בקופות_החולים_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "health_72",
+      "group": "health",
+      "title": "מגיל 72: טיפולי שיניים בסל ו-10% הנחה בתרופות",
+      "value": "בדיקה, צילומים וניקוי אבנית — חינם; טיפולים משמרים ומשקמים בהשתתפות עצמית מסובסדת; 10% אוטומטי על תרופות הסל",
+      "conditions": {
+        "eq": [
+          "derived.is_72plus",
+          true
+        ]
+      },
+      "status_if_met": "info",
+      "status_if_partial": "info",
+      "why": "מגיל 72 טיפולי שיניים מונעים, משמרים ומשקמים נכללים בסל הבריאות במרפאות הקופה ובמרפאות בהסדר. ההנחה בתרופות ניתנת אוטומטית בבית המרקחת.",
+      "steps": [
+        "לקבוע תור במרפאת השיניים של הקופה או במרפאה בהסדר ולציין 'טיפולי שיניים לאזרחים ותיקים בסל'."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "טיפולי שיניים לאזרחים ותיקים — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/טיפולי_שיניים_לאזרחים_ותיקים_במסגרת_סל_הבריאות"
+        },
+        {
+          "label": "הנחה בתרופות לאזרחים ותיקים — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_ברכישת_תרופות_לאזרחים_ותיקים"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — טיפולי שיניים לאזרחים ותיקים במסגרת סל הבריאות (עודכן 16.11.2025)",
+          "url": "https://www.kolzchut.org.il/he/טיפולי_שיניים_לאזרחים_ותיקים_במסגרת_סל_הבריאות",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "health_65",
+      "group": "health",
+      "title": "מגיל 65: חיסונים חינם · לכל המבוגרים: מכשירי שמיעה בהשתתפות הקופה",
+      "value": "שפעת ופנאומוקוק — חינם; שלבקת חוגרת (Shingrix) — בסל מגיל 65 בהשתתפות עצמית; מכשיר שמיעה — השתתפות של כ-3,141–3,427 ₪ לאוזן אחת ל-3.5 שנים (המקורות חלוקים)",
+      "conditions": {
+        "eq": [
+          "derived.is_65plus",
+          true
+        ]
+      },
+      "status_if_met": "info",
+      "status_if_partial": "info",
+      "why": "זכויות בסל הבריאות שרבים לא מנצלים. למכשירי שמיעה (מגיל 18, לא רק לאזרחים ותיקים) נדרשת הפניה מרופא א.א.ג ובדיקת שמיעה, ורכישה אצל ספק בהסדר; קנייה פרטית מוחזרת רק אם בקופה יש מסלול החזר — לבדוק לפני הרכישה.",
+      "steps": [
+        "לבקש מרופא/ת המשפחה: חיסונים לפי גיל; הפניה לא.א.ג ולבדיקת שמיעה אם יש קושי בשמיעה."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "מכשירי שמיעה — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/סיוע_במימון_מכשירי_שמיעה_למבוגרים"
+        },
+        {
+          "label": "בריאות בגיל השלישי — פורטל כל זכות",
+          "url": "https://www.kolzchut.org.il/he/בריאות_בגיל_השלישי"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — סיוע במימון מכשירי שמיעה למבוגרים (עודכן 15.2.2026)",
+          "url": "https://www.kolzchut.org.il/he/סיוע_במימון_מכשירי_שמיעה_למבוגרים",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "משרד הבריאות — חיסונים לגיל המבוגר",
+          "url": "https://me.health.gov.il/older-adult/services-rights/vaccines/recommended-vaccines/flu-vaccine/",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "סכום ההשתתפות במכשירי שמיעה: כל זכות 3,426.85 ₪; משרד הבריאות 3,141 ₪ — לבדוק מול הקופה."
+    },
+    {
+      "id": "health_67_ceiling",
+      "group": "health",
+      "title": "מגיל 67: תקרת ההשתתפות העצמית הרבעונית של המשפחה מופחתת ב-50%",
+      "value": "אוטומטי בקופה כשאחד מבני הזוג בגיל 67+",
+      "conditions": {
+        "eq": [
+          "derived.is_67plus",
+          true
+        ]
+      },
+      "status_if_met": "info",
+      "status_if_partial": "info",
+      "why": "תקרת התשלום המשפחתית הרבעונית על שירותים רפואיים מופחתת ב-50% — כדאי לוודא שהקופה מיישמת.",
+      "steps": [
+        "לבדוק בפירוט החיובים הרבעוני בקופה."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הפחתה_בתקרת_התשלום_לאזרחים_ותיקים_עבור_שירותי_בריאות_בקופות_החולים"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הפחתה בתקרת התשלום לאזרחים ותיקים",
+          "url": "https://www.kolzchut.org.il/he/הפחתה_בתקרת_התשלום_לאזרחים_ותיקים_עבור_שירותי_בריאות_בקופות_החולים",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "בחלק מהקופות ההפחתה ניתנת מגיל מוקדם יותר, לפי כללי הקופה — לבדוק."
+    },
+    {
+      "id": "survivor_check",
+      "group": "survivors",
+      "title": "אולי מגיע מענק שנתי כניצול/ת שואה — גם ליוצאי צפון אפריקה ועיראק",
+      "value": "מענק שנתי 7,688 ₪ (2026) + פטור מלא מתשלום על תרופות מרשם + שעות סיעוד נוספות — למי שעלה/תה לפני 1.10.1953. עולים מאוחרים יותר: קצבה חודשית / ועידת התביעות",
+      "conditions": {
+        "all": [
+          {
+            "lte": [
+              "birth_year",
+              1945
+            ]
+          },
+          {
+            "any": [
+              {
+                "includes": [
+                  "ww2",
+                  "europe"
+                ]
+              },
+              {
+                "includes": [
+                  "ww2",
+                  "north_africa"
+                ]
+              },
+              {
+                "includes": [
+                  "ww2",
+                  "iraq"
+                ]
+              }
+            ]
+          },
+          {
+            "not": {
+              "eq": [
+                "survivor_payment",
+                "yes"
+              ]
+            }
+          }
+        ]
+      },
+      "status_if_met": "check",
+      "status_if_partial": "check",
+      "why": "החוק מכיר כנרדפי הנאצים גם ביוצאי לוב, תוניסיה, מרוקו ואלג'יריה (שלטון וישי), ביוצאי עיראק שסבלו בפרהוד (1941), ובניצולים מרומניה ובולגריה — רבים מהם מעולם לא ביקשו. מי שעלה/תה לפני 1.10.1953 ולא מקבל/ת קצבה בגין הנרדפות — זכאי/ת למענק שנתי ולפטור מתרופות. מי שעלה/תה אחרי — ייתכן שזכאי/ת לקצבה ליוצאי מחנות וגטאות או לקצבה מקרן סעיף 2 של ועידת התביעות (הכנסה נטו עד 173,200 ₪ בשנה ליחיד).",
+      "steps": [
+        "להתקשר למרכז המידע של הרשות לזכויות ניצולי השואה *5105 (א'–ה' 07:00–19:00) ולבדוק זכאות — השירות חינם, ואין צורך בעורך דין.",
+        "להגיש בקשה מקוונת למענק שנתי (govforms) או בטופס להדפסה.",
+        "לעולים אחרי 1953 — ועידת התביעות 03-5194400.",
+        "סיוע משפטי חינם: *6405."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "מענק שנתי — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/מענק_שנתי_לפי_חוק_ההטבות_לניצולי_שואה"
+        },
+        {
+          "label": "מדריך לניצולים שטרם הוכרו — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/מדריך_לזכויות_ניצולי_שואה_אשר_טרם_הוכרה_זכאותם_לקצבה_או_מענק"
+        },
+        {
+          "label": "פורטל זכויות ניצולי שואה",
+          "url": "https://www.kolzchut.org.il/he/זכויות_ניצולי_שואה"
+        }
+      ],
+      "phone": "*5105",
+      "sources": [
+        {
+          "name": "כל זכות — מענק שנתי לפי חוק ההטבות לניצולי שואה (עודכן 27.1.2026)",
+          "url": "https://www.kolzchut.org.il/he/מענק_שנתי_לפי_חוק_ההטבות_לניצולי_שואה",
+          "verified": "2026-09-14"
+        },
+        {
+          "name": "gov.il — מענק לנפגעי הפרהוד",
+          "url": "https://www.gov.il/he/service/request_for_farhud_compensation_iraq",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "ההכרה תלויה בעילת נרדפות ובתאריך העלייה — לכן 'שווה לבדוק' ולא 'זכאי'."
+    },
+    {
+      "id": "survivor_benefits",
+      "group": "survivors",
+      "title": "לניצולי שואה מוכרים: פטור מתרופות, דמי הבראה ושעות סיעוד נוספות",
+      "value": "פטור מלא מתשלום על תרופות מרשם בסל (אוטומטי); דמי הבראה שנתיים; 9 שעות סיעוד שבועיות נוספות (כ-2,169 ₪ לחודש לפי כל זכות, נובמבר 2025) למי שמקבל/ת גמלת סיעוד מלאה",
+      "conditions": {
+        "eq": [
+          "survivor_payment",
+          "yes"
+        ]
+      },
+      "status_if_met": "check",
+      "status_if_partial": "check",
+      "why": "הרשות לזכויות ניצולי השואה מעבירה את השמות לקופות החולים ולקרן לרווחת נפגעי השואה — רוב ההטבות אמורות להינתן אוטומטית, אבל כדאי לוודא, במיוחד אחרי מעבר קופה או שינוי מצב סיעודי.",
+      "steps": [
+        "לבדוק בבית המרקחת שהפטור מופיע; לוודא קבלת דמי הבראה בינואר–פברואר; אם יש גמלת סיעוד — לבדוק את תוספת השעות מהקרן לרווחת נפגעי השואה. בירורים: *5105."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "פטור מתרופות — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/פטור_מתשלום_עבור_תרופות_לניצולי_שואה_ונכי_המלחמה_בנאצים"
+        },
+        {
+          "label": "עזרה סיעודית מהקרן — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/עזרה_סיעודית_לניצולי_שואה_מהקרן_לרווחת_נפגעי_השואה"
+        }
+      ],
+      "phone": "*5105",
+      "sources": [
+        {
+          "name": "כל זכות — פטור מתשלום עבור תרופות לניצולי שואה",
+          "url": "https://www.kolzchut.org.il/he/פטור_מתשלום_עבור_תרופות_לניצולי_שואה_ונכי_המלחמה_בנאצים",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "tax_161d",
+      "group": "money",
+      "title": "קיבוע זכויות (טופס 161ד) — פטור ממס על הפנסיה",
+      "value": "עד 57.5% מהפנסיה עד תקרה של 9,430 ₪ לחודש פטורים ממס (עד 5,422 ₪ לחודש, 2026). חינם. אפשר גם רטרואקטיבית",
+      "conditions": {
+        "all": [
+          {
+            "eq": [
+              "derived.retirement_age_reached",
+              true
+            ]
+          },
+          {
+            "in": [
+              "pension_status",
+              [
+                "pension_161d_not_filed",
+                "pension_161d_unknown"
+              ]
+            ]
+          }
+        ]
+      },
+      "status_if_met": "likely",
+      "status_if_partial": "check",
+      "why": "מי שמקבל/ת פנסיה והגיע/ה לגיל הזכאות מ-1.1.2012 זכאי/ת לפטור על 'קצבה מזכה' — אבל הפטור המלא ניתן רק אחרי שמגישים טופס 161ד לרשות המסים. בלי הטופס משלמים מס מיותר. ההגשה חינם ואינה דורשת יועץ.",
+      "steps": [
+        "להיכנס לאזור האישי ברשות המסים (או לפקיד השומה) ולמלא טופס 161ד.",
+        "לצרף תלוש פנסיה אחרון מכל משלם, ואישורים על מענקי פרישה/היוונים קודמים (טופס 161 ממעסיקים).",
+        "לפי המדריך של רשות המסים ניתן לתקן רטרואקטיבית עד 6 שנים."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "בקשה לקיבוע זכויות — gov.il",
+          "url": "https://www.gov.il/he/service/itc-request-for-fixed-rights-at-retirement-age"
+        },
+        {
+          "label": "מדריך למילוי 161ד (PDF)",
+          "url": "https://www.gov.il/BlobFolder/guide/2026-filling-out-form-161d/he/Guides_IncomeTax_filling-out-form-161d-2026.pdf"
+        }
+      ],
+      "sources": [
+        {
+          "name": "רשות המסים — בקשה לקיבוע זכויות (עודכן 1.6.2026)",
+          "url": "https://www.gov.il/he/service/itc-request-for-fixed-rights-at-retirement-age",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": "הפטור משפיע גם על מענקי פרישה — מי שמשך מענקים גדולים כדאי שיבדוק. שיעור הפטור עולה: 62.5% ב-2027, 67% ב-2028.",
+      "variants": {
+        "unknown_161d": {
+          "when": {
+            "eq": [
+              "pension_status",
+              "pension_161d_unknown"
+            ]
+          },
+          "status": "check",
+          "note": "לא בטוחים אם הוגש? באזור האישי ברשות המסים רואים אם קיים 'אישור קיבוע זכויות'; אפשר גם לשאול את משלם הפנסיה אם הוא מנכה מס לפי אישור פקיד שומה."
+        }
+      }
+    },
+    {
+      "id": "har_hakesef",
+      "group": "money",
+      "title": "הר הכסף — חיפוש חינם של חסכונות פנסיוניים וביטוחים 'שנשכחו'",
+      "value": "שירות חינם של משרד האוצר; קופת גמל לא פעילה עם יתרה עד 8,000 ₪ — משיכה בלי מס",
+      "always": true,
+      "status_if_met": "info",
+      "status_if_partial": "info",
+      "why": "מי שעבד/ה בכמה מקומות עבודה עשוי/ה להחזיק חשבונות פנסיוניים/ביטוחים לא פעילים. האיתור חינם ודורש רק ת\"ז ותאריך הוצאתה.",
+      "steps": [
+        "להיכנס להר הכסף (itur.mof.gov.il) או להתקשר *3002.",
+        "אם נמצאה קופה לא פעילה עם עד 8,000 ₪ (ללא הפקדות מ-2014) — לבקש משיכה בפטור ממס."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הר הכסף — gov.il",
+          "url": "https://www.gov.il/he/service/pension_savings_search"
+        },
+        {
+          "label": "משיכה מקופה לא פעילה — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/פטור_ממס_במשיכת_כספים_מקופת_גמל_לא_פעילה"
+        }
+      ],
+      "phone": "*3002",
+      "sources": [
+        {
+          "name": "gov.il — הר הכסף",
+          "url": "https://www.gov.il/he/service/pension_savings_search",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "bezeq",
+      "group": "utilities",
+      "title": "50% הנחה בדמי השימוש הקבועים בבזק",
+      "value": "למקבלי השלמת הכנסה, כשהקו רשום על שמם — אוטומטי",
+      "conditions": {
+        "includes": [
+          "benefits",
+          "income_supplement"
+        ]
+      },
+      "status_if_met": "info",
+      "status_if_partial": "info",
+      "why": "רשימות הזכאים מועברות מביטוח לאומי לבזק. אין כפל הנחות עם חבילה מוזלת.",
+      "steps": [
+        "לוודא שהקו רשום על שם מקבל/ת הקצבה; בירורים: בזק 199."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "הדף בכל זכות",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בתשלומי_בזק_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה"
+        }
+      ],
+      "sources": [
+        {
+          "name": "כל זכות — הנחה בתשלומי בזק למקבלי קצבת זיקנה עם השלמת הכנסה",
+          "url": "https://www.kolzchut.org.il/he/הנחה_בתשלומי_בזק_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    },
+    {
+      "id": "hotlines",
+      "group": "always",
+      "title": "שני טלפונים שכדאי לשמור",
+      "value": "*8840 — מוקד האזרחים הוותיקים (המשרד לשוויון חברתי), א'–ה' 08:00–18:00, כל הזכויות · *9696 — שירות הייעוץ לאזרח הוותיק של ביטוח לאומי, א'–ה' 09:00–13:30, מענה של מתנדבים",
+      "always": true,
+      "status_if_met": "info",
+      "status_if_partial": "info",
+      "why": "המוקדים עוזרים גם לבני משפחה, בכמה שפות, ומכירים את הזכויות שלא נכנסו לבדיקה הזו (דיור, מועדונים, מרכזי +60, קצבת שאירים).",
+      "steps": [
+        "לשמור את המספרים בטלפון של ההורה ושלך."
+      ],
+      "letter": null,
+      "links": [
+        {
+          "label": "מוקד *8840 — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/מוקד_8840*_של_אגף_בכיר_אזרחים_ותיקים"
+        },
+        {
+          "label": "מדריך מיצוי זכויות לאזרחים ותיקים — כל זכות",
+          "url": "https://www.kolzchut.org.il/he/מדריך_מיצוי_זכויות_לאזרחים_ותיקים"
+        }
+      ],
+      "phone": "*8840",
+      "sources": [
+        {
+          "name": "כל זכות — מוקד *8840 (עודכן 16.10.2025)",
+          "url": "https://www.kolzchut.org.il/he/מוקד_8840*_של_אגף_בכיר_אזרחים_ותיקים",
+          "verified": "2026-09-14"
+        }
+      ],
+      "caveats": ""
+    }
+  ],
+  "backlog": [
+    "קצבת שאירים — הגדרת אלמן/ה, סכומים, קבלת שאירים+זקנה יחד (כל זכות: קבלת_קצבת_שאירים_וקצבת_זיקנה)",
+    "סיוע בשכר דירה ודיור ציבורי למקבלי השלמת הכנסה",
+    "מרכזי +60, מועדונים חברתיים, יועץ לאזרחים ותיקים ברשות — תלוי-רשות",
+    "הטבת מס מגיל 60 על ריבית ורווחי הון",
+    "משיכה ללא מס בשל מיעוט הכנסות (טופס 159א)",
+    "הנחת נזקק בוועדת הנחות (הוצאות רפואיות גבוהות / החמרה כלכלית) — עד 70%",
+    "ממשק רוסי",
+    "רשימת 255 הרשויות המקומיות עם קישור לטופס ההנחה של כל אחת"
+  ]
+}

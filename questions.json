@@ -1,0 +1,287 @@
+{
+  "_meta": {
+    "version": "0.3",
+    "language": "he",
+    "notes": "Adaptive flow: a typical parent takes 9–11 screens (was ~18). Screens group 1–2 related questions ('screen' id). 'show_if' hides a question; 'skip_if' + 'default_when_skipped' answers it silently from earlier answers (the value counts as a real answer, not 'dontknow'). Every choice question gets a 'לא יודע/ת' option (value 'dontknow') unless 'no_dontknow'. {{name}} = the senior's first name as entered, default 'ההורה' (for_whom = self → second person). 'show_if' / 'skip_if' use the predicate grammar of rules.json.",
+    "early_exit": "From screen S4 onward a secondary button 'הצג תוצאות עכשיו' is available. Questions not yet reached are recorded as 'dontknow' (NOT as not-applicable), so rights depending on them appear as 'שווה לבדוק'. Questions hidden by show_if remain not-applicable.",
+    "pre_retirement_shortcut": "If derived.retirement_age_reached is false after S2, jump straight to results (only age-independent cards apply) with the note strings.pre_retirement_note. This is the biggest single saving.",
+    "letter_fields": "property_sqm, municipality, full_name, id_number, address, property_account are asked on the letter screen only, never in the questionnaire."
+  },
+  "screens": [
+    {"id": "S1", "title": "עבור מי בודקים?", "questions": ["for_whom", "name"]},
+    {"id": "S2", "title": "כמה פרטים בסיסיים", "questions": ["gender", "birth"]},
+    {"id": "S3", "title": "ביטוח לאומי", "questions": ["benefits", "siud_level", "adl_help"]},
+    {"id": "S4", "title": "משק הבית", "questions": ["seniors_in_home", "income_band"]},
+    {"id": "S5", "title": "פנסיה", "questions": ["pension_status"]},
+    {"id": "S6", "title": "דירה וארנונה", "questions": ["housing", "arnona_in_name", "arnona_discount"]},
+    {"id": "S7", "title": "נכות", "questions": ["disability"]},
+    {"id": "S8", "title": "מלחמת העולם השנייה", "questions": ["ww2", "survivor_payment"]},
+    {"id": "S9", "title": "חשמל", "questions": ["electricity_contract"]},
+    {"id": "S10", "title": "תחבורה", "questions": ["ravkav_gold"]}
+  ],
+  "questions": [
+    {
+      "id": "for_whom",
+      "screen": "S1",
+      "type": "single",
+      "title": "עבור מי בודקים?",
+      "options": [
+        {"value": "parent", "label": "עבור אבא או אמא"},
+        {"value": "self", "label": "עבור עצמי"},
+        {"value": "other", "label": "עבור קרוב/ה אחר/ת"}
+      ],
+      "no_dontknow": true
+    },
+    {
+      "id": "name",
+      "screen": "S1",
+      "type": "text",
+      "title": "איך לקרוא לו/לה? (לא חובה)",
+      "placeholder": "שם פרטי",
+      "optional": true,
+      "show_if": {"not": {"eq": ["for_whom", "self"]}}
+    },
+    {
+      "id": "gender",
+      "screen": "S2",
+      "type": "single",
+      "title": "{{name}} —",
+      "options": [
+        {"value": "f", "label": "אישה"},
+        {"value": "m", "label": "גבר"}
+      ],
+      "no_dontknow": true,
+      "help": "גיל הפרישה שונה לנשים ולגברים, ולכן זה משנה."
+    },
+    {
+      "id": "birth",
+      "screen": "S2",
+      "type": "month_year",
+      "title": "באיזה חודש ושנה {{name}} נולד/ה?",
+      "help": "חודש ושנה בלבד. אצל נשים ילידות 1960–1969 החודש קובע את גיל הפרישה.",
+      "fields": [
+        {"id": "birth_month", "label": "חודש", "min": 1, "max": 12},
+        {"id": "birth_year", "label": "שנה", "min": 1920, "max": 1970}
+      ],
+      "no_dontknow": true,
+      "after": "If derived.retirement_age_reached is false → go to results (pre_retirement_shortcut)."
+    },
+    {
+      "id": "benefits",
+      "screen": "S3",
+      "type": "multi",
+      "title": "מה {{name}} מקבל/ת היום מביטוח לאומי?",
+      "help": "אפשר לסמן כמה. לא בטוחים? 'לא יודע/ת'. אפשר לבדוק בטלפון *6050.",
+      "options": [
+        {"value": "old_age", "label": "קצבת אזרח ותיק (קצבת זקנה)"},
+        {"value": "income_supplement", "label": "תוספת השלמת הכנסה (או הבטחת הכנסה)"},
+        {"value": "survivors", "label": "קצבת שאירים"},
+        {"value": "siud", "label": "גמלת סיעוד (שעות טיפול / מטפל/ת)"},
+        {"value": "old_age_disabled", "label": "קצבת זקנה לנכה (קיבל/ה קצבת נכות כללית לפני הפרישה)"},
+        {"value": "none", "label": "לא מקבל/ת שום קצבה", "exclusive": true}
+      ]
+    },
+    {
+      "id": "siud_level",
+      "screen": "S3",
+      "type": "single",
+      "title": "באיזו רמה גמלת הסיעוד?",
+      "help": "כתוב במכתב האישור מביטוח לאומי (רמה 1 עד 6).",
+      "options": [
+        {"value": "1", "label": "1"}, {"value": "2", "label": "2"}, {"value": "3", "label": "3"},
+        {"value": "4", "label": "4"}, {"value": "5", "label": "5"}, {"value": "6", "label": "6"}
+      ],
+      "show_if": {"includes": ["benefits", "siud"]}
+    },
+    {
+      "id": "adl_help",
+      "screen": "S3",
+      "type": "single",
+      "title": "האם {{name}} צריך/ה עזרה של אדם אחר בפעולות יומיומיות (רחצה, לבוש, ניידות בבית, אכילה) או השגחה?",
+      "options": [
+        {"value": "yes", "label": "כן"},
+        {"value": "no", "label": "לא"}
+      ],
+      "show_if": {"not": {"includes": ["benefits", "siud"]}}
+    },
+    {
+      "id": "seniors_in_home",
+      "screen": "S4",
+      "type": "single",
+      "title": "כמה אנשים בגיל פרישה גרים בדירה?",
+      "help": "גיל פרישה: גברים 67, נשים 62–65 לפי שנת הלידה. בן/בת זוג צעיר/ה יותר לא נספר/ת.",
+      "options": [
+        {"value": "1", "label": "רק {{name}}"},
+        {"value": "2", "label": "שניים (למשל שני בני הזוג)"}
+      ],
+      "skip_if": {"includes": ["benefits", "income_supplement"]},
+      "default_when_skipped": "1",
+      "skip_reason": "Income-supplement recipients pass every income test in the rules; the count is only needed for the 150% threshold, which they clear anyway."
+    },
+    {
+      "id": "income_band",
+      "screen": "S4",
+      "type": "single",
+      "title": "מה ההכנסה החודשית ברוטו של {{name}} (ושל בן/בת הזוג אם גם הוא/היא בגיל פרישה)?",
+      "help": "כולל פנסיה, קצבאות ביטוח לאומי, עבודה ושכר דירה. הערכה גסה מספיקה.",
+      "options": [
+        {"value": "b1", "label": "עד 4,400 ₪"},
+        {"value": "b2", "label": "4,400 – 7,000 ₪"},
+        {"value": "b3", "label": "7,000 – 13,600 ₪"},
+        {"value": "b4", "label": "13,600 – 20,400 ₪"},
+        {"value": "b5", "label": "מעל 20,400 ₪"}
+      ],
+      "skip_if": {"includes": ["benefits", "income_supplement"]},
+      "default_when_skipped": "b1",
+      "skip_reason": "Receiving השלמת הכנסה already proves income ≤ 4,375/6,912 ₪ — below every threshold used in rules.json."
+    },
+    {
+      "id": "pension_status",
+      "screen": "S5",
+      "type": "single",
+      "title": "האם {{name}} מקבל/ת פנסיה מעבודה (קרן פנסיה, ביטוח מנהלים או פנסיה תקציבית) — לא רק מביטוח לאומי?",
+      "help": "'קיבוע זכויות' (טופס 161ד) הוא הטופס שמקבע את הפטור ממס על הפנסיה. רבים לא יודעים עליו.",
+      "options": [
+        {"value": "no_pension", "label": "לא מקבל/ת פנסיה מעבודה"},
+        {"value": "pension_161d_filed", "label": "מקבל/ת פנסיה, וטופס 161ד הוגש לרשות המסים"},
+        {"value": "pension_161d_not_filed", "label": "מקבל/ת פנסיה, וטופס 161ד לא הוגש"},
+        {"value": "pension_161d_unknown", "label": "מקבל/ת פנסיה, לא יודע/ת אם 161ד הוגש"}
+      ],
+      "merged_from": ["pension_income", "form_161d"]
+    },
+    {
+      "id": "housing",
+      "screen": "S6",
+      "type": "single",
+      "title": "איפה {{name}} גר/ה?",
+      "options": [
+        {"value": "owner", "label": "בדירה בבעלותו/ה"},
+        {"value": "renter", "label": "בשכירות"},
+        {"value": "with_family", "label": "אצל בן משפחה (לא משלם/ת ארנונה)"},
+        {"value": "institution", "label": "בדיור מוגן / בית אבות"}
+      ],
+      "no_dontknow": true
+    },
+    {
+      "id": "arnona_in_name",
+      "screen": "S6",
+      "type": "single",
+      "title": "האם חשבון הארנונה רשום על שם {{name}} (או על שם בן/בת הזוג)?",
+      "options": [
+        {"value": "yes", "label": "כן"},
+        {"value": "no", "label": "לא, על שם אדם אחר"}
+      ],
+      "show_if": {"in": ["housing", ["owner", "renter"]]}
+    },
+    {
+      "id": "arnona_discount",
+      "screen": "S6",
+      "type": "single",
+      "title": "איזו הנחה בארנונה יש היום?",
+      "help": "מופיע בחשבון הארנונה תחת 'הנחה'. רוב האזרחים הוותיקים מקבלים 25% — אבל רבים זכאים ל-30% או ל-100%.",
+      "options": [
+        {"value": "none", "label": "אין הנחה"},
+        {"value": "25", "label": "25%"},
+        {"value": "30", "label": "30%"},
+        {"value": "100", "label": "100%"},
+        {"value": "other", "label": "הנחה אחרת"}
+      ],
+      "show_if": {"all": [{"in": ["housing", ["owner", "renter"]]}, {"eq": ["arnona_in_name", "yes"]}]}
+    },
+    {
+      "id": "disability",
+      "screen": "S7",
+      "type": "multi",
+      "title": "האם ל{{name}} נכות מוכרת?",
+      "options": [
+        {"value": "medical90", "label": "נכות רפואית 90% ומעלה (ביטוח לאומי / משרד הביטחון)"},
+        {"value": "incapacity75", "label": "קצבת נכות כללית עם אי-כושר 75% ומעלה (לפני הפרישה)"},
+        {"value": "blind", "label": "תעודת עיוור / לקוי ראייה"},
+        {"value": "idf", "label": "נכה צה\"ל / כוחות הביטחון"},
+        {"value": "none", "label": "לא", "exclusive": true}
+      ],
+      "show_if": {"all": [{"in": ["housing", ["owner", "renter"]]}, {"eq": ["arnona_in_name", "yes"]}, {"not": {"eq": ["arnona_discount", "100"]}}]},
+      "skip_reason": "Only feeds arnona tiers (and the IDF electricity path). Irrelevant when the person does not pay arnona in their own name or already has 100%."
+    },
+    {
+      "id": "ww2",
+      "screen": "S8",
+      "type": "multi",
+      "title": "איפה {{name}} (או משפחתו/ה) חי/ה בזמן מלחמת העולם השנייה (1939–1945)?",
+      "help": "גם מי שנולד/ה בצפון אפריקה או בעיראק עשוי/ה להיות מוכר/ת כניצול/ת שואה ולקבל מענק שנתי.",
+      "options": [
+        {"value": "europe", "label": "באירופה (כולל ברית המועצות, רומניה, בולגריה)"},
+        {"value": "north_africa", "label": "בלוב, תוניסיה, מרוקו או אלג'יריה"},
+        {"value": "iraq", "label": "בעיראק"},
+        {"value": "elsewhere", "label": "במקום אחר (למשל בישראל, תימן, איראן)", "exclusive": true}
+      ],
+      "show_if": {"lte": ["birth_year", 1945]}
+    },
+    {
+      "id": "survivor_payment",
+      "screen": "S8",
+      "type": "single",
+      "title": "האם {{name}} מקבל/ת תשלום כלשהו כניצול/ת שואה (מהרשות לזכויות ניצולי השואה, מגרמניה, מועידת התביעות)?",
+      "options": [
+        {"value": "yes", "label": "כן"},
+        {"value": "no", "label": "לא"}
+      ],
+      "show_if": {"all": [{"lte": ["birth_year", 1945]}, {"any": [{"includes": ["ww2", "europe"]}, {"includes": ["ww2", "north_africa"]}, {"includes": ["ww2", "iraq"]}, {"unknown": "ww2"}]}]}
+    },
+    {
+      "id": "electricity_contract",
+      "screen": "S9",
+      "type": "single",
+      "title": "על שם מי רשום חוזה החשמל בדירה?",
+      "help": "מופיע בראש חשבון החשמל. ההנחה בחשמל ניתנת אוטומטית רק אם החוזה על שם הזכאי/ת.",
+      "options": [
+        {"value": "self", "label": "על שם {{name}}"},
+        {"value": "other", "label": "על שם אדם אחר (בן/בת זוג, ילד/ה, בעל הדירה)"}
+      ],
+      "show_if": {"all": [
+        {"not": {"eq": ["housing", "institution"]}},
+        {"any": [
+          {"all": [{"includes": ["benefits", "income_supplement"]}, {"any": [{"includes": ["benefits", "old_age"]}, {"includes": ["benefits", "survivors"]}]}]},
+          {"includes": ["benefits", "old_age_disabled"]},
+          {"all": [{"includes": ["benefits", "siud"]}, {"in": ["siud_level", ["5", "6"]]}]},
+          {"all": [{"includes": ["benefits", "siud"]}, {"eq": ["siud_level", "4"]}, {"eq": ["derived.is_90plus", true]}]},
+          {"all": [{"includes": ["benefits", "siud"]}, {"unknown": "siud_level"}]},
+          {"eq": ["survivor_payment", "yes"]},
+          {"includes": ["disability", "idf"]},
+          {"unknown": "benefits"}
+        ]}
+      ]},
+      "skip_reason": "Asked only when the person is (or may be) in an electricity-discount group; the income_supplement card already tells non-recipients that the discount unlocks once השלמת הכנסה is approved."
+    },
+    {
+      "id": "ravkav_gold",
+      "screen": "S10",
+      "type": "single",
+      "title": "האם ברב-קו (או באפליקציית התחבורה) של {{name}} טעון פרופיל 'זהב-קו'?",
+      "help": "מגיל 67 הנסיעה בתחבורה הציבורית חינם — אבל רק אם הפרופיל טעון בכרטיס.",
+      "options": [
+        {"value": "yes", "label": "כן"},
+        {"value": "no", "label": "לא"}
+      ],
+      "show_if": {"eq": ["derived.is_67plus", true]}
+    }
+  ],
+  "derived_fields": {
+    "age": "years between birth (month/year) and today",
+    "retirement_age_reached": "true if age >= retirement age; men 67; women per rules.json → derived.retirement_age_women (BTL table by birth date)",
+    "is_65plus": "age >= 65",
+    "is_67plus": "age >= 67",
+    "is_70plus": "age >= 70",
+    "is_72plus": "age >= 72",
+    "is_90plus": "age >= 90",
+    "pension_income": "'yes' if pension_status in [pension_161d_filed, pension_161d_not_filed, pension_161d_unknown]; 'no' if no_pension; 'dontknow' if dontknow",
+    "receives_income_supplement": "includes(benefits,'income_supplement')",
+    "no_btl_benefit": "includes(benefits,'none')"
+  },
+  "screen_counts": {
+    "typical_parent_74_alone_old_age_only": 10,
+    "income_supplement_recipient": 8,
+    "siud_recipient_living_with_family": 9,
+    "pre_retirement": 2
+  }
+}

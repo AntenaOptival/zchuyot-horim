@@ -27,6 +27,19 @@ jobs:
       - name: Link check (report only — gov.il may 403 from CI)
         run: node scripts/check-links.mjs || true
 
+  # Kol Zchut and gov.il answer 403 to plain HTTP clients; this job loads every URL in a real
+  # headless Chromium instead. Run it manually: Actions → this workflow → Run workflow.
+  links-browser:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm i -g playwright@1.56.1 && npx playwright install --with-deps chromium
+      - run: NODE_PATH=$(npm root -g) node scripts/check-links.mjs --browser --timeout=30000 --concurrency=2
+
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: test

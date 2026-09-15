@@ -713,6 +713,7 @@ window.addEventListener('beforeprint', () => { $$('details', main).forEach((d) =
 // Boot
 // ---------------------------------------------------------------------------
 async function boot() {
+  document.documentElement.classList.add('no-tts'); // hidden until a Hebrew voice is confirmed
   const lang = new URLSearchParams(location.search).get('lang') || document.documentElement.lang || 'he';
   try {
     const load = async (u) => { const r = await fetch(u, { cache: 'no-cache' }); if (!r.ok) throw new Error(`${u}: HTTP ${r.status}`); return r.json(); };

@@ -45,11 +45,30 @@ export function parseLetter(md) {
   return { title, body: (parts[1] || '').trim(), note: (parts[2] || '').trim() };
 }
 
+/**
+ * Load a letter. Primary source: letters/<file>.md. Fallback: letters/letters.json — a bundle
+ * { "L1": "<markdown>", ... } for hosts that cannot serve .md files (some sandboxes only serve
+ * standard web types). A .md response that does not look like a letter (e.g. an HTML fallback
+ * page) is treated as missing.
+ */
 export async function loadLetter(id) {
   if (cache.has(id)) return cache.get(id);
-  const res = await fetch(LETTER_FILES[id]);
-  if (!res.ok) throw new Error(`letter ${id}: HTTP ${res.status}`);
-  const letter = { id, ...parseLetter(await res.text()) };
+  let md = null;
+  try {
+    const res = await fetch(LETTER_FILES[id]);
+    if (res.ok) {
+      const text = await res.text();
+      if (/\{\{\w+\}\}/.test(text) && /\n---/.test(text)) md = text;
+    }
+  } catch { /* fall through to the bundle */ }
+  if (md === null) {
+    const res = await fetch('letters/letters.json');
+    if (!res.ok) throw new Error(`letter ${id}: .md unavailable and bundle HTTP ${res.status}`);
+    const bundle = await res.json();
+    if (typeof bundle[id] !== 'string') throw new Error(`letter ${id}: missing from letters/letters.json`);
+    md = bundle[id];
+  }
+  const letter = { id, ...parseLetter(md) };
   cache.set(id, letter);
   return letter;
 }

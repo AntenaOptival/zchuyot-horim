@@ -122,7 +122,7 @@ TODAY = dt.date(2026, 9, 15)
 PERSONAS = {
  "P1": dict(a=dict(for_whom="parent", name="רחל", gender="f", birth_year=1952, birth_month=3, benefits=["old_age"], adl_help="no",
                    seniors_in_home="1", income_band="b1", pension_status="no_pension", housing="owner", arnona_in_name="yes",
-                   arnona_discount="25", disability=["none"], ww2=["elsewhere"], ravkav_gold="no"),
+                   arnona_discount="25", disability=["none"], ravkav_gold="no"),
             expect={"income_supplement":"likely","arnona_30":"likely","transport_67":"likely","arnona_low_income":"check",
                     "health_72":"info","health_65":"info","health_67_ceiling":"info","har_hakesef":"info","hotlines":"info"},
             screens_expected=8),
@@ -143,7 +143,7 @@ PERSONAS = {
  # P5: income-supplement recipient — income/seniors auto-filled, electricity asked
  "P5": dict(a=dict(for_whom="parent", name="מרים", gender="f", birth_year=1946, birth_month=1, benefits=["old_age","income_supplement"], adl_help="no",
                    pension_status="no_pension", housing="renter", arnona_in_name="yes", arnona_discount="25", disability=["none"],
-                   ww2=["elsewhere"], electricity_contract="self", ravkav_gold="yes"),
+                   electricity_contract="self", ravkav_gold="yes"),
             expect={"arnona_100_income_supplement":"likely","electricity":"likely","water":"check","heating_grant":"info",
                     "health_income_supplement":"check","bezeq":"info","health_72":"info","health_65":"info","health_67_ceiling":"info",
                     "har_hakesef":"info","hotlines":"info"},

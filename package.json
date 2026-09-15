@@ -1,0 +1,13 @@
+{
+  "name": "zchuyot-horim",
+  "version": "0.1.0",
+  "description": "בודקים זכויות להורים — static, Hebrew, phone-first rights checker for people aged 60+",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test",
+    "check-links": "node scripts/check-links.mjs",
+    "serve": "npx --yes serve -l 8080 ."
+  }
+}

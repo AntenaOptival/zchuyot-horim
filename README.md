@@ -82,7 +82,9 @@ node --test            # מנוע + פרסונות (+ השוואה לפייתו�
 2. **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main` / `(root)` → Save.**
 3. אחרי כדקה האתר זמין ב-`https://<user>.github.io/<repo>/`. זהו.
 
-אפשרות ב' — Actions: הקובץ `.github/workflows/pages.yml` מריץ את הבדיקות ומפרסם אוטומטית בכל push ל-`main` (ב-Settings → Pages בוחרים Source: **GitHub Actions**). שימו לב: GitHub Pages זמין למאגרים ציבוריים בחינם; למאגר פרטי נדרשת תוכנית בתשלום.
+אפשרות ב' — Actions: הקובץ `.github/workflows/pages.yml` מריץ את הבדיקות בכל push ו-PR, ויכול גם לפרסם אוטומטית: ב-Settings → Pages בוחרים Source: **GitHub Actions**, וב-Settings → Secrets and variables → Actions → Variables מוסיפים משתנה `DEPLOY_WITH_ACTIONS` עם הערך `true`. בלי המשתנה הזה רק הבדיקות רצות (כדי שלא יהיו ריצות אדומות כשמפרסמים מהענף).
+
+שימו לב: GitHub Pages זמין למאגרים **ציבוריים** בחינם; למאגר פרטי נדרשת תוכנית בתשלום. הקוד ברישיון MIT — אפשר פשוט להפוך את המאגר לציבורי.
 
 דומיין משלו: Settings → Pages → Custom domain.
 
@@ -121,7 +123,7 @@ No backend, no login, nothing stored server-side; answers live in the browser ta
 
 **Edit rules.** Each right in `rules.json → rights` has `conditions` in a tiny predicate grammar — `all` / `any` / `not` · `eq` · `in` · `includes` · `gte` · `lte` · `unknown` — evaluated with three-valued logic ("don't know" → *unknown* → "worth checking"; a question never shown → *not applicable* → false), `status_if_met` / `status_if_partial` (`likely` / `check` / `info`), Hebrew copy (`title`, `value`, `why`, `steps`, `caveats`), `links`, `phone`, an optional `letter` (L1–L3), optional `variants`, and mandatory `sources[]` with `verified` dates that render on every card. Derived fields (`derived.age`, `derived.retirement_age_reached`, `derived.is_67plus`, …) come from `questions.json → derived_fields`. Run `node --test` and `node scripts/check-links.mjs` after editing.
 
-**Deploy to GitHub Pages in 5 minutes.** Fork → Settings → Pages → Source "Deploy from a branch" → `main` / root → Save → `https://<user>.github.io/<repo>/`. Or use the included `.github/workflows/pages.yml` (Source: GitHub Actions), which also runs the tests. Pages is free for public repositories; private repositories need a paid plan.
+**Deploy to GitHub Pages in 5 minutes.** Fork → Settings → Pages → Source "Deploy from a branch" → `main` / root → Save → `https://<user>.github.io/<repo>/`. Or use the included `.github/workflows/pages.yml`: set Pages Source to "GitHub Actions" and add the repository variable `DEPLOY_WITH_ACTIONS=true`; the workflow always runs the tests, and deploys only when that variable is set. Pages is free for public repositories; private repositories need a paid plan.
 
 **Analytics.** Set `const GOATCOUNTER = '<your-site-code>'` at the top of `app.js`. Events only (`start`, `q_<id>`, `results`, `card_<id>`, `letter_<id>`, `share_whatsapp`, `print`) — never answers. Empty string disables everything.
 

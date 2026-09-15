@@ -40,8 +40,11 @@ jobs:
       - run: npm i -g playwright@1.56.1 && npx playwright install --with-deps chromium
       - run: NODE_PATH=$(npm root -g) node scripts/check-links.mjs --browser --timeout=30000 --concurrency=2
 
+  # Deploys only when the repository variable DEPLOY_WITH_ACTIONS is "true"
+  # (Settings → Secrets and variables → Actions → Variables) AND Settings → Pages → Source is
+  # "GitHub Actions". Otherwise use the zero-config path: Settings → Pages → Deploy from a branch.
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.DEPLOY_WITH_ACTIONS == 'true'
     needs: test
     runs-on: ubuntu-latest
     environment:

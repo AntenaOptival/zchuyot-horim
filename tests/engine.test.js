@@ -202,6 +202,7 @@ describe('flow', () => {
       { for_whom: 'parent', gender: 'f', birth_year: 1952, birth_month: 3 },
       { for_whom: 'parent', gender: 'f', birth_year: 1952, birth_month: 3, benefits: ['old_age'], adl_help: 'no' },
       { for_whom: 'parent', gender: 'f', birth_year: 1952, birth_month: 3, benefits: ['old_age'], adl_help: 'no', seniors_in_home: '1', income_band: 'b1', pension_status: 'no_pension', housing: 'owner', arnona_in_name: 'yes', arnona_discount: '25' },
+      { for_whom: 'parent', gender: 'f', birth_year: 1952, birth_month: 3, benefits: ['old_age'], adl_help: 'no', seniors_in_home: '1', income_band: 'b1', pension_status: 'no_pension', housing: 'owner', arnona_in_name: 'yes', arnona_discount: '25', disability: ['none'], ravkav_gold: 'no' },
     ];
     let prev = Infinity;
     for (const a of steps) {
@@ -211,6 +212,7 @@ describe('flow', () => {
     }
     assert.equal(estimateScreens(questions, {}, TODAY, rules).length, 10, 'nothing answered → all 10 screens possible');
     assert.equal(estimateScreens(questions, steps[2], TODAY, rules).length, 9, 'born 1952 → WW2 screen closed');
+    assert.equal(estimateScreens(questions, steps[4], TODAY, rules).length, 9, 'disability unanswered → electricity screen still possible (IDF path)');
     assert.equal(prev, 8, 'P1 fully answered → exactly the 8 rendered screens');
     assert.equal(estimateScreens(questions, { for_whom: 'self', gender: 'm', birth_year: 1960, birth_month: 4 }, TODAY, rules).length, 2, 'pre-retirement → 2');
     assert.equal(estimateScreens(questions, { for_whom: 'parent', gender: 'f', birth_year: 1946, birth_month: 1, benefits: ['old_age', 'income_supplement'] }, TODAY, rules).includes('S4'), false, 'S4 auto-filled → not counted');

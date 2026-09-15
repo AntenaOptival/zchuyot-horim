@@ -79,6 +79,7 @@ async function runPersona(browser, id, p) {
   check((await page.locator('html').getAttribute('lang')) === 'he', 'lang=he');
 
   const self = p.answers.for_whom === 'self';
+  check((await page.locator('input[name="entry"]').count()) === 3, `${id}: landing offers parent / self / other`);
   await page.locator(`input[name="entry"][value="${self ? 'self' : 'parent'}"]`).locator('xpath=ancestor::label').click();
   await page.locator('[data-action="start"]').click();
 
@@ -94,6 +95,10 @@ async function runPersona(browser, id, p) {
     check((await page.locator('[data-action="size"]').count()) === 3, `${id}: text-size control on ${screenId}`);
     // one h1
     check((await page.locator('h1').count()) === 1, `${id}: exactly one h1 on ${screenId}`);
+    if (screenId === 'S1') {
+      check((await page.locator('[data-qid="for_whom"]').count()) === 0, `${id}: S1 does not ask "for whom" again (bug 2)`);
+      check(await page.locator('.prefilled').isVisible(), `${id}: S1 shows the prefilled "checking for" line`);
+    }
     // primary button ≥56px
     const box = await page.locator('[data-action="next"]').boundingBox();
     check(box && box.height >= 56, `${id}: primary button ≥56px on ${screenId} (got ${box?.height})`);
@@ -139,7 +144,9 @@ async function runPersona(browser, id, p) {
   for (const el of await page.$$('article.card')) {
     const rid = (await el.getAttribute('id')).replace('card-', '');
     const src = await el.$eval('.card__source', (n) => n.textContent).catch(() => '');
-    check(/^מקור: .+ · נבדק \d{1,2}\.\d{1,2}\.\d{4}/.test(src), `${id}: source line on ${rid}: "${src}"`);
+    const s0 = rightById[rid].sources[0];
+    const fmt = (iso) => { const m = /^(\d{4})-(\d{2})-(\d{2})(.*)$/.exec(iso); return m ? `${+m[3]}.${+m[2]}.${m[1]}${m[4] || ''}` : iso; };
+    check(src.trim() === `מקור: ${s0.name} · נבדק ${fmt(s0.verified)}`, `${id}: source line on ${rid}: "${src.trim()}"`);
     const badge = await el.$eval('.badge', (n) => n.textContent.trim());
     check(['כנראה זכאי/ת', 'שווה לבדוק', 'כדאי לדעת'].some((s) => badge.endsWith(s)), `${id}: badge text "${badge}"`);
     if (rightById[rid].caveats) check((await el.$('.card__caveat')) !== null, `${id}: caveat shown on ${rid}`);

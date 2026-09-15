@@ -10,7 +10,7 @@ export const LETTER_FILES = {
 };
 
 /** Fields that are computed, never typed. */
-export const AUTO_FIELDS = new Set(['date', 'income_line', 'seniors_in_home']);
+export const AUTO_FIELDS = new Set(['date', 'income_line', 'seniors_in_home', 'legal_basis', 'subject_basis']);
 
 /** Order of the editable fields in the form (filtered by the placeholders the letter actually uses). */
 export const FIELD_ORDER = [
@@ -78,7 +78,7 @@ export function placeholdersIn(body) {
 }
 
 /** Default values for a letter, derived from the answers (env includes skip-defaults) and the right it was opened from. */
-export function letterDefaults({ letterId, rightId, env, strings, dateStr }) {
+export function letterDefaults({ letterId, rightId, right, env, strings, dateStr }) {
   const L = strings.letter;
   const benefits = Array.isArray(env.benefits) ? env.benefits : [];
   const disability = Array.isArray(env.disability) ? env.disability : [];
@@ -95,7 +95,12 @@ export function letterDefaults({ letterId, rightId, env, strings, dateStr }) {
     phone: '',
   };
   if (letterId === 'L2') {
-    d.benefit_name = rightId === 'arnona_100_old_age_disabled' ? L.benefit_options[2] : L.benefit_options[0];
+    // Recipients of קצבת זקנה לנכה: the legal basis is the regulations named in the card, not ס' 9(ב).
+    // The paragraph is the card's own `why` sentence from rules.json — no new legal text is written here.
+    const disabled = rightId === 'arnona_100_old_age_disabled';
+    d.benefit_name = disabled ? L.benefit_options[2] : L.benefit_options[0];
+    d.legal_basis = disabled && right?.why ? right.why : L.l2_legal_default;
+    d.subject_basis = disabled ? L.l2_subject_old_age_disabled : L.l2_subject_default;
   }
   if (letterId === 'L3') {
     const B = L.eligibility_basis;

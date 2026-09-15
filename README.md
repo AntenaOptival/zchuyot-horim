@@ -2,6 +2,8 @@
 
 **10 שאלות. 2 דקות. רשימה קצרה של זכויות שכנראה לא נוצלו — ומה בדיוק לעשות.**
 
+🔗 **האתר החי:** https://antenaoptival.github.io/zchuyot-horim/
+
 כלי אינטרנט סטטי, בעברית, לטלפון, שמיועד לבן/בת של אדם בגיל 60+ (או לאדם עצמו). הוא שואל 8–10 שאלות קצרות (2 בלבד למי שעוד לא בגיל פרישה), ומחזיר רשימה מכוילת של זכויות — **כנראה זכאי/ת · שווה לבדוק · כדאי לדעת** — עם הצעד הבא, קישור לדף המקור בכל זכות, טלפון, ובמקרים המתאימים מכתב מוכן להדפסה (הנחת ארנונה 30% / 100%, העברת חוזה חשמל).
 
 - ללא שרת, ללא הרשמה, ללא עוגיות. התשובות נשארות בדפדפן בלבד.
@@ -107,11 +109,13 @@ node --test            # מנוע + פרסונות (+ השוואה לפייתו�
 
 ## מה עוד פתוח
 
-[`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md) — דברים שדורשים אימות אנושי לפני/אחרי ההשקה. [`VERIFICATION.md`](VERIFICATION.md) — מה נבדק ואיך.
+[`OPEN_QUESTIONS.md`](OPEN_QUESTIONS.md) — דברים שדורשים אימות אנושי לפני/אחרי ההשקה. [`VERIFICATION.md`](VERIFICATION.md) — מה נבדק ואיך. [`MANUAL_CHECKS.md`](MANUAL_CHECKS.md) — רשימת הבדיקות הידניות (קישורים, דפדפן, טלפונים) להרצה חוזרת אחרי כל עדכון תוכן.
 
 ---
 
 # Checking Your Parents' Rights (English)
+
+**Live:** https://antenaoptival.github.io/zchuyot-horim/
 
 A static, Hebrew, phone-first web tool that asks 8–10 short adaptive questions about a person aged 60+ and returns the short list of rights they are probably not claiming — calibrated as **likely · worth checking · good to know** — with the exact next step, the canonical Kol Zchut / National Insurance link, a phone number and, where the step is a letter, the letter (arnona 30% / 100%, IEC contract transfer).
 

@@ -1,7 +1,8 @@
 {
   "_meta": {
-    "version": "0.3",
+    "version": "0.4",
     "verified": "2026-09-14",
+    "links_verified": "2026-09-15 — all 39 Kol Zchut / gov.il pages opened in a browser (see VERIFICATION.md); 3 URLs updated to their current addresses",
     "statuses": {
       "likely": "כנראה זכאי/ת",
       "check": "שווה לבדוק",
@@ -230,7 +231,7 @@
         },
         {
           "label": "הגשת תלונה לנציב תלונות הציבור",
-          "url": "https://www.mevaker.gov.il/he/Ombudsman"
+          "url": "https://www.mevaker.gov.il/ombudsman/activity/at-your-service"
         }
       ],
       "sources": [
@@ -523,7 +524,7 @@
           "verified": "2026-09-14"
         }
       ],
-      "caveats": "במכתב L2 יש להחליף את שם הגמלה ל'קצבת זקנה לנכה' ואת הסעיף לתקנות האזרחים הוותיקים (הטבות לאזרח ותיק שמקבל קצבת זקנה לנכה)."
+      "caveats": "המכתב (L2) מותאם אוטומטית למקבלי קצבת זקנה לנכה: שם הגמלה והבסיס המשפטי לפי תקנות האזרחים הוותיקים (הטבות לאזרח ותיק שמקבל קצבת זקנה לנכה). כדאי לקרוא אותו לפני השליחה."
     },
     {
       "id": "arnona_25",
@@ -844,7 +845,7 @@
         },
         {
           "label": "נכי צה\"ל — כל זכות",
-          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לנכי_צה\"ל"
+          "url": "https://www.kolzchut.org.il/he/הנחה_בארנונה_לנכי_צה\"ל_וכוחות_הביטחון"
         }
       ],
       "sources": [
@@ -2079,7 +2080,7 @@
         },
         {
           "label": "עזרה סיעודית מהקרן — כל זכות",
-          "url": "https://www.kolzchut.org.il/he/עזרה_סיעודית_לניצולי_שואה_מהקרן_לרווחת_נפגעי_השואה"
+          "url": "https://www.kolzchut.org.il/he/עזרה_סיעודית_לטווח_ארוך_לניצולי_שואה"
         }
       ],
       "phone": "*5105",

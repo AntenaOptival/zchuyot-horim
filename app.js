@@ -235,6 +235,12 @@ function isAnswered(q) {
   return !(v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0));
 }
 
+/** Questions actually shown on a screen: S1 hides `for_whom` once the landing answered it. */
+function visibleQuestions(sid, flow) {
+  const qs = questions.questions.filter((q) => q.screen === sid && flow.rendered.has(q.id));
+  return sid === 'S1' && ENTRIES.includes(state.answers.for_whom) ? qs.filter((q) => q.id !== 'for_whom') : qs;
+}
+
 function nextScreenAfter(sid) {
   const flow = engine.resolveFlow(state.answers, today());
   const list = flow.renderedScreens;
@@ -251,7 +257,7 @@ function renderQuestionScreen({ preserveFocus = false, errorFor = null } = {}) {
   if (!screen) { state.view = 'landing'; return renderLanding(); }
   const qs = questions.questions.filter((q) => q.screen === sid && flow.rendered.has(q.id));
   const prefilledForWhom = sid === 'S1' && ENTRIES.includes(state.answers.for_whom);
-  const visibleQs = prefilledForWhom ? qs.filter((q) => q.id !== 'for_whom') : qs;
+  const visibleQs = visibleQuestions(sid, flow);
   const n = Math.max(1, (est.includes(sid) ? est : flow.renderedScreens).indexOf(sid) + 1);
   const m = Math.max(n, est.length);
   const canEarlyExit = screenOrderIndex(sid) >= screenOrderIndex('S4');
@@ -420,10 +426,14 @@ function goNext() {
 
 function goBack() {
   readAnswers();
-  const list = engine.resolveFlow(state.answers, today()).renderedScreens;
+  const flow = engine.resolveFlow(state.answers, today());
+  const list = flow.renderedScreens;
   const i = list.indexOf(state.screen);
-  if (i <= 0) navigate(() => { state.view = 'landing'; state.screen = null; });
-  else navigate(() => { state.screen = list[i - 1]; });
+  // skip screens with nothing visible (S1 for a "self" user: no name field, for_whom prefilled)
+  let j = i - 1;
+  while (j >= 0 && visibleQuestions(list[j], flow).length === 0) j--;
+  if (j < 0) navigate(() => { state.view = 'landing'; state.screen = null; });
+  else navigate(() => { state.screen = list[j]; });
 }
 
 function earlyExit() {

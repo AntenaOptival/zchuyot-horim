@@ -105,11 +105,10 @@ await page.locator('[data-action="next"]').click();
 check(await page.locator('.field-error').first().isVisible(), 'inline error when required answer missing');
 check((await page.locator('.progress').textContent()).includes('שלב 2'), 'stays on S2 after validation error');
 await axe('S2 with error');
-// back to landing from S2 (self) → goes to S1 (for_whom shown) then landing
-await page.locator('[data-action="back"]').click();
-await page.waitForSelector('[data-qid="for_whom"]');
+// back from S2 (self) → straight to the landing (S1 has nothing to show for a self user)
 await page.locator('[data-action="back"]').click();
 await page.waitForSelector('[data-action="start"]');
+check(await page.locator('input[name="entry"][value="self"]').isChecked(), 'landing remembers the "self" entry after Back');
 await page.evaluate(() => localStorage.removeItem('zchuyot.textsize'));
 
 // P3-like flow to S3 with siud_level revealed, then S6 (housing with_family → no arnona qs), then S8 (ww2 → survivor_payment revealed)

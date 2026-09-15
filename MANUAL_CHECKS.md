@@ -12,7 +12,8 @@ You are verifying the static web tool **"בודקים זכויות להורים"
 2. If GitHub says Pages is unavailable because the repository is private: ask the human whether to make it public (the code is MIT-licensed and meant to be public). If yes: `Settings → General → Danger Zone → Change visibility → Public`, then return to `Settings → Pages`.
 3. Set **Source: Deploy from a branch**, **Branch: main**, folder **/ (root)**, Save.
 4. Wait about two minutes, reload the Pages settings page and copy the site URL. Open it and confirm the landing page shows the title "בודקים זכויות להורים", two choice cards and a "מתחילים" button.
-5. Optional smoke test on the live URL: choose "אני בודק/ת עבור ההורה", press "מתחילים", answer: אישה · מרץ 1952 · קצבת אזרח ותיק · לא · רק ההורה · עד 4,400 ₪ · לא מקבל/ת פנסיה · בדירה בבעלותו/ה · כן · 25% · לא · לא. Expect 3 cards under "כנראה זכאי/ת" (income supplement, arnona 30%, free transport 67+), 1 under "שווה לבדוק", 5 under "כדאי לדעת". Report any difference.
+5. **Custom domain (if Harel buys one, e.g. `zchuyot-horim.org.il`):** after step 4 works, in `Settings → Pages → Custom domain` enter the domain and Save (GitHub adds a `CNAME` file to `main`). At the registrar's DNS: for `www` add a **CNAME** record → `antenaoptival.github.io`; for the bare domain add four **A** records → `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`. Wait for the DNS check to pass, tick **Enforce HTTPS**, open the domain on a phone. Report the domain.
+6. Optional smoke test on the live URL: choose "אני בודק/ת עבור ההורה", press "מתחילים", answer: אישה · מרץ 1952 · קצבת אזרח ותיק · לא · רק ההורה · עד 4,400 ₪ · לא מקבל/ת פנסיה · בדירה בבעלותו/ה · כן · 25% · לא · לא. Expect 3 cards under "כנראה זכאי/ת" (income supplement, arnona 30%, free transport 67+), 1 under "שווה לבדוק", 5 under "כדאי לדעת". Report any difference.
 
 ## Task B — links that no automated client could verify (Kol Zchut and gov.il block bots)
 
@@ -97,6 +98,7 @@ For every URL below: open it in a normal tab, wait for it to render, and record
 
 ```
 PAGES_URL:
+CUSTOM_DOMAIN:
 REPO_VISIBILITY:
 SMOKE_TEST:              # OK / differences
 B1: <#> | <status> | <title> | <updated>      (one line per row)

@@ -65,7 +65,8 @@ for (const f of ['rules.json', 'questions.json', ...readdirSync(ROOT).filter((x)
     for (const s of r.sources || []) add(s.url, `rules.json → ${r.id}.sources "${s.name}"`);
   }
 }
-for (const f of ['README.md', 'DISCLAIMER.md', 'OPEN_QUESTIONS.md', 'VERIFICATION.md']) if (existsSync(join(ROOT, f))) walkText(readFileSync(join(ROOT, f), 'utf8'), f);
+// VERIFICATION.md records historical (moved) URLs on purpose — scan it only with --all.
+for (const f of ['README.md', 'DISCLAIMER.md', 'OPEN_QUESTIONS.md', ...(SCAN_ALL ? ['VERIFICATION.md'] : [])]) if (existsSync(join(ROOT, f))) walkText(readFileSync(join(ROOT, f), 'utf8'), f);
 if (existsSync(join(ROOT, 'letters'))) for (const f of readdirSync(join(ROOT, 'letters'))) if (f.endsWith('.md')) walkText(readFileSync(join(ROOT, 'letters', f), 'utf8'), `letters/${f}`);
 if (SCAN_ALL && existsSync(join(ROOT, 'research'))) for (const f of readdirSync(join(ROOT, 'research'))) if (f.endsWith('.md')) walkText(readFileSync(join(ROOT, 'research', f), 'utf8'), `research/${f}`);
 

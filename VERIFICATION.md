@@ -43,3 +43,22 @@ Three independent fact-check passes re-fetched every URL in `sources`/`links` an
 2. Confirm IEC's current channel for contract transfer (103 / fax / online) by calling 103.
 3. Reconcile hearing-aid participation (3,426.85 vs 3,141) with one קופה.
 4. Recheck all 2026 NIS figures in January 2027 (BTL updates 1.1; Kol Zchut updates inline).
+
+---
+
+# Link verification — 15.9.2026 (browser session, after the build)
+
+Every Kol Zchut / gov.il URL in `rules.json` was opened in a real browser (they refuse automated clients); the National Insurance, Comptroller, Wikisource, Health Ministry and Rav-Kav URLs had already passed an automated check from CI the same day.
+
+**39 of 39 pages load; none missing.** Two had moved and now redirect — the URLs were updated to the destination:
+
+| Card | Was | Now |
+|---|---|---|
+| `survivor_benefits` (עזרה סיעודית) | `…/עזרה_סיעודית_לניצולי_שואה_מהקרן_לרווחת_נפגעי_השואה` | `https://www.kolzchut.org.il/he/עזרה_סיעודית_לטווח_ארוך_לניצולי_שואה` (עודכן 4.11.2025) |
+| `arnona_disability` (נכי צה"ל) | `…/הנחה_בארנונה_לנכי_צה"ל` | `https://www.kolzchut.org.il/he/הנחה_בארנונה_לנכי_צה"ל_וכוחות_הביטחון` (עודכן 9.6.2025) |
+| `arnona_30` — הגשת תלונה לנציב תלונות הציבור | `https://www.mevaker.gov.il/he/Ombudsman` (falls through to the home page) | `https://www.mevaker.gov.il/ombudsman/activity/at-your-service`; online form `https://complaint.mevaker.gov.il/`. L1's user note updated too. |
+
+"עודכן ב-" stamps observed on the cited pages match the dates in `sources[].name` (e.g. arnona seniors 5.8.2026, electricity 18.1.2026, dental 16.11.2025, survivor grant 27.1.2026, *8840 16.10.2025) with one exception: `transport_women_62` cites "עודכן 13.8.2025" while the page footer showed 11.08.2025 — left as is, see OPEN_QUESTIONS.
+
+Not re-verified here: the claims themselves (done 14.9.2026, above). `rules.json → _meta.links_verified` records this pass.
+

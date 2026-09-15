@@ -57,6 +57,40 @@ check((await page.locator('ol.sources li').count()) === 28, 'about: 28 rights li
 await axe('about');
 await page.locator('[data-action="home"]').click();
 
+check((await page.locator('input[name="entry"]').count()) === 3, 'landing: three entry choices (parent / self / other)');
+// "other" relative: S1 shows only the name field with the stronger prompt; default name בן/בת המשפחה
+await seed({ view: 'question', screen: 'S1', answers: { for_whom: 'other' }, entry: 'other' });
+await page.waitForSelector('[data-qid="name"]');
+check((await page.locator('[data-qid="for_whom"]').count()) === 0, 'S1 (other): for_whom not asked again');
+check((await page.locator('.prefilled').textContent()).includes('קרוב/ה'), 'S1 (other): prefilled line names the choice');
+check((await page.locator('[data-qid="name"] .help').textContent()).includes('בן/בת המשפחה'), 'S1 (other): stronger name prompt');
+await axe('S1 (other, prefilled)');
+await seed({ view: 'results', screen: 'S10', answers: { ...PERSONAS.P1.answers, for_whom: 'other', name: undefined } });
+await page.waitForSelector('article.card');
+check((await page.locator('h1').textContent()).trim() === 'הרשימה של בן/בת המשפחה', 'other without a name → "הרשימה של בן/בת המשפחה"');
+// source line exact (bug 1)
+check((await page.locator('#card-arnona_30 .card__source').textContent()).trim() === 'מקור: כל זכות — הנחה בארנונה לאזרחים ותיקים (עודכן 5.8.2026) · נבדק 14.9.2026', 'source line shows the real source');
+// D15: woman 62–67 before her retirement age → pre-retirement note + transport line + card
+await seed({ view: 'results', screen: 'S2', answers: { for_whom: 'self', gender: 'f', birth_year: 1964, birth_month: 6 }, entry: 'self' });
+await page.waitForSelector('article.card');
+check((await page.locator('.note--info').textContent()).includes('נשים מגיל 62'), 'D15: transport-62 line under the pre-retirement note');
+check((await page.locator('#card-transport_women_62').count()) === 1, 'D15: transport_women_62 card surfaces');
+// D5: L2 legal basis for קצבת זקנה לנכה
+await seed({ view: 'results', screen: 'S10', answers: { for_whom: 'parent', name: 'דוד', gender: 'm', birth_year: 1955, birth_month: 1, benefits: ['old_age_disabled'], adl_help: 'no', seniors_in_home: '1', income_band: 'b1', pension_status: 'no_pension', housing: 'owner', arnona_in_name: 'yes', arnona_discount: '25', disability: ['none'], electricity_contract: 'self', ravkav_gold: 'yes' } });
+await page.waitForSelector('#card-arnona_100_old_age_disabled');
+await page.locator('#card-arnona_100_old_age_disabled [data-action="letter"]').click();
+await page.waitForSelector('#letter-paper .ph');
+{
+  const t = await page.locator('#letter-paper').textContent();
+  check(t.includes('תקנות האזרחים הוותיקים (הטבות לאזרח ותיק שמקבל קצבת זקנה לנכה)'), 'D5: L2 legal paragraph uses the regulations for קצבת זקנה לנכה');
+  check(!t.includes('סעיף 9(ב)'), 'D5: L2 for קצבת זקנה לנכה does not cite ס\' 9(ב)');
+  check(t.includes('קצבת זקנה לנכה'), 'D5: benefit name is קצבת זקנה לנכה');
+}
+await axe('letter L2 (old-age disabled)');
+await page.evaluate(() => sessionStorage.removeItem('zchuyot.state.v1'));
+await page.goto(`${BASE}/?today=${TODAY}`);
+await page.waitForSelector('[data-action="start"]');
+
 // self entry → A+ and read-aloud hint, S1 skipped
 await page.evaluate(() => localStorage.removeItem('zchuyot.textsize'));
 await page.locator('label:has(input[name="entry"][value="self"])').click();
@@ -159,6 +193,7 @@ await page.locator('[data-action="tts-toggle"]').click();
 await page.locator('#card-arnona_100_income_supplement [data-action="letter"]').click();
 await page.waitForSelector('#letter-paper .ph');
 check((await page.locator('#letter-paper').textContent()).includes('תוספת השלמת הכנסה לקצבת אזרח ותיק'), 'L2 benefit_name default');
+check((await page.locator('#letter-paper').textContent()).includes('סעיף 9(ב)'), 'L2 default keeps the ס\' 9(ב) legal paragraph');
 await axe('letter L2 (A++)');
 await page.locator('[data-action="back-results"]').click();
 await page.waitForSelector('article.card');

@@ -4,6 +4,7 @@
  * Engine: engine.js (pure). Privacy: answers live in memory + sessionStorage only.
  */
 import { createEngine } from './engine.js';
+import { applyTemplate, formatDate, sourceLine } from './format.js';
 import {
   loadLetter, placeholdersIn, letterDefaults, resolveValues, renderLetterHtml, letterPlainText,
   AUTO_FIELDS, FIELD_ORDER, FIELD_TYPES,
@@ -24,6 +25,7 @@ const LS_SIZE = 'zchuyot.textsize';
 const LS_AUTOREAD = 'zchuyot.autoread';
 const SIZES = ['a', 'a1', 'a2'];
 const STATUS_ORDER = ['likely', 'check', 'info'];
+const ENTRIES = ['parent', 'self', 'other']; // the landing's entry choice IS the for_whom question
 
 let rules, questions, strings, engine, qById, rightById;
 const main = $('#main');
@@ -63,12 +65,8 @@ function today() {
   return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
 }
 function fmtToday() { const t = today(); return `${t.day}.${t.month}.${t.year}`; }
-/** "2026-09-14" → "14.9.2026" (any trailing text is kept). */
-function fmtDate(iso) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})(.*)$/.exec(String(iso || '').trim());
-  if (!m) return esc(iso);
-  return esc(`${+m[3]}.${+m[2]}.${m[1]}${m[4] || ''}`);
-}
+/** "2026-09-14" → "14.9.2026" (any trailing text is kept), HTML-escaped. */
+function fmtDate(iso) { return esc(formatDate(iso)); }
 
 // ---------------------------------------------------------------------------
 // Analytics (guarded; never sends answers)
@@ -150,18 +148,7 @@ const tts = {
 // Templating: {{name}} → the senior's first name / "ההורה" / second person for self
 // ---------------------------------------------------------------------------
 function tpl(str, extra = {}) {
-  const self = state.answers.for_whom === 'self';
-  const name = String(state.answers.name || '').trim();
-  let out = String(str ?? '');
-  if (self) {
-    out = out.replace(/של \{\{name\}\}/g, strings.name_self_of).replace(/ל\{\{name\}\}/g, strings.name_self_to).replace(/\{\{name\}\}/g, strings.name_self);
-  } else if (name) {
-    out = out.replace(/\{\{name\}\}/g, name);
-  } else {
-    out = out.replace(/ל\{\{name\}\}/g, strings.name_default_to).replace(/\{\{name\}\}/g, strings.name_default);
-  }
-  for (const [k, v] of Object.entries(extra)) out = out.split(`{{${k}}}`).join(String(v));
-  return out;
+  return applyTemplate(str, { forWhom: state.answers.for_whom, name: state.answers.name }, strings, extra);
 }
 
 // ---------------------------------------------------------------------------
@@ -215,8 +202,7 @@ function renderLanding() {
       <h1>${esc(L.h1)}</h1>
       <p class="lede">${esc(L.sub)}</p>
       <div class="choices" role="radiogroup" aria-label="${esc(L.entry_label)}">
-        <label class="choice"><input type="radio" name="entry" value="parent" ${state.entry !== 'self' ? 'checked' : ''}><span class="choice__label">${esc(L.entry_parent)}</span></label>
-        <label class="choice"><input type="radio" name="entry" value="self" ${state.entry === 'self' ? 'checked' : ''}><span class="choice__label">${esc(L.entry_self)}</span></label>
+        ${ENTRIES.map((e) => `<label class="choice"><input type="radio" name="entry" value="${e}" ${(ENTRIES.includes(state.entry) ? state.entry : 'parent') === e ? 'checked' : ''}><span class="choice__label">${esc(L[`entry_${e}`])}</span></label>`).join('')}
       </div>
       <p class="privacy">🔒 ${esc(L.privacy)}</p>
       <p><a href="#about" data-action="about">${esc(L.how_it_works)}</a></p>
@@ -226,10 +212,11 @@ function renderLanding() {
 }
 
 function start() {
-  const self = state.entry === 'self';
+  const entry = ENTRIES.includes(state.entry) ? state.entry : 'parent';
+  const self = entry === 'self';
   resetState();
-  state.entry = self ? 'self' : 'parent';
-  state.answers.for_whom = self ? 'self' : 'parent';
+  state.entry = entry;
+  state.answers.for_whom = entry;
   if (self) {
     if (!storedSize()) applySize('a1', false); // "self" starts at A+ (without overriding an explicit choice)
     state.suggestTts = true;
@@ -263,10 +250,13 @@ function renderQuestionScreen({ preserveFocus = false, errorFor = null } = {}) {
   const screen = questions.screens.find((s) => s.id === sid);
   if (!screen) { state.view = 'landing'; return renderLanding(); }
   const qs = questions.questions.filter((q) => q.screen === sid && flow.rendered.has(q.id));
+  const prefilledForWhom = sid === 'S1' && ENTRIES.includes(state.answers.for_whom);
+  const visibleQs = prefilledForWhom ? qs.filter((q) => q.id !== 'for_whom') : qs;
   const n = Math.max(1, (est.includes(sid) ? est : flow.renderedScreens).indexOf(sid) + 1);
   const m = Math.max(n, est.length);
   const canEarlyExit = screenOrderIndex(sid) >= screenOrderIndex('S4');
-  const title = tpl(screen.title);
+  const title = prefilledForWhom && visibleQs.length === 1 ? tpl(visibleQs[0].title) : tpl(screen.title);
+  const forWhomLabel = qById.for_whom.options.find((o) => o.value === state.answers.for_whom)?.label || '';
   const N = strings.nav;
 
   // analytics: q_<id> once per question per check
@@ -283,8 +273,9 @@ function renderQuestionScreen({ preserveFocus = false, errorFor = null } = {}) {
     <h1 id="screen-title">${esc(title)}</h1>
     ${state.suggestTts && sid === 'S2' ? `<p class="hint tts-only">🔊 ${esc(strings.tts.suggest)}</p>` : ''}
     <button type="button" class="btn btn--tts tts-only" data-action="speak" data-speech="screen">🔊 ${esc(strings.tts.read)}</button>
+    ${prefilledForWhom ? `<p class="prefilled">${esc(strings.landing.checking_for)} <strong>${esc(forWhomLabel)}</strong> · <button type="button" class="btn btn--link" data-action="home">${esc(strings.nav.change)}</button></p>` : ''}
     <form class="questions" novalidate autocomplete="off">
-      ${qs.map((q) => renderQuestion(q, title, errorFor === q.id)).join('')}
+      ${visibleQs.map((q) => renderQuestion(q, title, errorFor === q.id)).join('')}
     </form>
     ${canEarlyExit ? `<div class="early-exit"><button type="button" class="btn btn--secondary" data-action="early-exit">${esc(N.early_exit)}</button><p class="help">${esc(N.early_exit_help)}</p></div>` : ''}
     <div class="primary-bar"><button type="button" class="btn btn--primary" data-action="next">${esc(N.next)}</button></div>`;
@@ -307,10 +298,11 @@ function renderQuestion(q, screenTitle, showError) {
   const describedBy = [help ? `help-${q.id}` : '', showError ? `err-${q.id}` : ''].filter(Boolean).join(' ');
 
   if (q.type === 'text') {
+    const textHelp = help || (q.id === 'name' && a.for_whom === 'other' ? strings.name_prompt_other : '');
     return `<div class="q q--text" data-qid="${q.id}" data-type="text">
-      <label class="q__title" for="in-${q.id}">${esc(title)}</label>
-      ${help ? `<p class="help" id="help-${q.id}">${esc(help)}</p>` : ''}
-      <input id="in-${q.id}" class="input" type="text" name="${q.id}" value="${esc(a[q.id] || '')}" placeholder="${esc(q.placeholder || '')}" maxlength="40" autocomplete="off" ${describedBy ? `aria-describedby="${describedBy}"` : ''}>
+      <label class="q__title ${dup ? 'visually-hidden' : ''}" for="in-${q.id}">${esc(title)}</label>
+      ${textHelp ? `<p class="help" id="help-${q.id}">${esc(textHelp)}</p>` : ''}
+      <input id="in-${q.id}" class="input" type="text" name="${q.id}" value="${esc(a[q.id] || '')}" placeholder="${esc(q.placeholder || '')}" maxlength="40" autocomplete="off" ${textHelp || showError ? `aria-describedby="${[textHelp ? `help-${q.id}` : '', showError ? `err-${q.id}` : ''].filter(Boolean).join(' ')}"` : ''}>
     </div>`;
   }
 
@@ -477,7 +469,7 @@ function renderResults() {
     </div>
     <h1>${esc(tpl(R.h1))}</h1>
     <p class="summary">${esc(tpl(R.summary, counts))}</p>
-    ${flow.preRetirement ? `<p class="note note--info">${esc(R.pre_retirement_note)}</p>` : ''}
+    ${flow.preRetirement ? `<p class="note note--info">${esc(R.pre_retirement_note)}${results.some((r) => r.right === 'transport_women_62') ? `<br>${esc(R.pre_retirement_women_62)}` : ''}</p>` : ''}
     ${state.earlyExit && !flow.preRetirement ? `<p class="note">${esc(R.early_exit_note)}</p>` : ''}
     ${nothingActionable ? `<p class="note note--empty">${esc(R.empty)}</p>` : ''}
     <button type="button" class="btn btn--tts tts-only" data-action="speak" data-speech="screen">🔊 ${esc(strings.tts.read)}</button>
@@ -522,7 +514,7 @@ function renderCard(r) {
         ${right.phone ? `<a class="btn btn--secondary" href="${phoneHref(right.phone)}">📞 ${esc(R.call)} <bdi dir="ltr">${esc(right.phone)}</bdi></a>` : ''}
         <button type="button" class="btn btn--tts tts-only" data-action="speak" data-card="${right.id}" aria-label="${esc(strings.tts.read_card)}: ${esc(title)}">🔊 ${esc(strings.tts.read)}</button>
       </div>
-      ${src ? `<p class="card__source">${tpl(esc(R.source), { name: esc(src.name), date: fmtDate(src.verified) })}</p>` : ''}
+      ${src ? `<p class="card__source">${esc(sourceLine(strings, src))}</p>` : ''}
       ${right.caveats ? `<p class="card__caveat"><strong>${esc(R.caveat_label)}</strong> ${esc(right.caveats)}</p>` : ''}
     </article>`;
 }
@@ -561,7 +553,7 @@ async function renderLetter() {
 
   const { flow } = computeResults();
   const keys = placeholdersIn(letter.body);
-  const defaults = letterDefaults({ letterId: id, rightId, env: flow.env, strings, dateStr: fmtToday() });
+  const defaults = letterDefaults({ letterId: id, rightId, right, env: flow.env, strings, dateStr: fmtToday() });
   state.letterValues[id] ||= {};
   const typed = state.letterValues[id];
   const editable = FIELD_ORDER.filter((k) => keys.includes(k) && !AUTO_FIELDS.has(k));

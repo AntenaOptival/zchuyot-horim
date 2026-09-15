@@ -1,38 +1,31 @@
 # Open questions — before / after launch
 
-Seeded from the last section of `VERIFICATION.md` (14.9.2026) plus items found while building (15.9.2026).
+Seeded from the last section of `VERIFICATION.md` (14.9.2026) plus items found while building (15.9.2026) and the browser verification session (15.9.2026 ~09:00).
 Rule 6 of KICKOFF: thresholds, legal statements and phone numbers were **not** changed in `rules.json`; doubts go here.
 
-## From VERIFICATION.md (still open)
+## Still open
 
-1. **Arnona 30% retroactivity** — confirm with one municipality's גבייה department whether the 30% under ס' 9 is granted retroactively to 1 January of the filing year (Kol Zchut: "בחלק מהרשויות").
-2. **IEC contract transfer channel** — confirm the current channel (103 / fax 03-7131899 / online form) by calling 103. L3 keeps the "לא אומת" flag on the online form.
-3. **Hearing-aid participation** — reconcile 3,426.85 ₪ (Kol Zchut) vs 3,141 ₪ (Ministry of Health) with one קופה. The card shows the range.
+1. **Arnona 30% retroactivity** — confirm with one municipality's גבייה department whether the 30% under ס' 9 is granted retroactively to 1 January of the filing year (Kol Zchut: "בחלק מהרשויות"). *(E1 pending)*
+2. **IEC contract transfer channel** — confirm the current channel (103 / fax 03-7131899 / online form) by calling 103. L3 keeps the "לא אומת" flag on the online form. *(E2 pending)*
+3. **Hearing-aid participation** — reconcile 3,426.85 ₪ (Kol Zchut) vs 3,141 ₪ (Ministry of Health) with one קופה. The card shows the range. *(E3 pending)*
 4. **2026 NIS figures** — recheck everything in January 2027 (BTL updates 1.1; Kol Zchut updates inline). `rules.json → _meta.verified` and every `sources[].verified` should be bumped then.
-
-## Found while building (15.9.2026)
-
-5. **Letter L2 for `arnona_100_old_age_disabled`** — `rules.json` routes this card to L2, but L2's legal line is ס' 9(ב) (גמלה לפי חוק הבטחת הכנסה). The card's own caveat says the benefit name and the legal basis must be swapped to תקנות האזרחים הוותיקים (הטבות לאזרח ותיק שמקבל קצבת זקנה לנכה). The UI pre-selects the benefit name "קצבת זקנה לנכה" and shows the caveat above the letter, but the body still cites 9(ב). Needs either a dedicated L2b template or a `{{legal_basis}}` placeholder — decision for the content owner, not changed here.
-6. **External links — what was verified and what still needs a human (CI runs 15.9.2026 from GitHub Actions: plain fetch, then headless Chromium via `scripts/check-links.mjs --browser`):**
-   - **61 unique URLs in the shipped files** (rules.json, questions.json, strings, letters, README, DISCLAIMER): **19 reachable, 0 dead, 42 blocked for automated clients.**
-   - **Reachable (HTTP 200):** all 11 `btl.gov.il` pages and forms (incl. `t430.pdf` and `Fill480.aspx`), the 4 Comptroller / Ombudsman PDFs on `library.mevaker.gov.il`, the 161ד guide PDF on `gov.il`, `he.wikisource.org` (חוק האזרחים הותיקים), `me.health.gov.il` (vaccines), `ravkavonline.co.il`.
-   - **Cloudflare challenge ("Just a moment…") to headless Chromium and 403 to plain fetch:** all Kol Zchut pages and the gov.il *service* pages. A challenge means the site refused an automated client, not that the page is gone. For **22 of them the Wayback Machine has a 2024–2026 snapshot (HTTP 200)**, which confirms the page existed at that date — e.g. הנחה בארנונה למקבלי גמלת סיעוד (15.3.2026), פטור מתשלום בתחבורה מגיל 67 (17.5.2026), מענק שנתי לניצולי שואה (18.1.2026), מוקד *8840 (17.5.2026), הר הכסף on gov.il (27.8.2025).
-   - **17 URLs have neither a direct check nor a snapshot — open each once in a normal browser before launch and tick it off here:**
-     `הנחה_בארנונה_לאזרחים_ותיקים` (used by 5 cards, incl. arnona_30 / L1) · `הנחה_בארנונה_למקבלי_קצבת_זיקנה_לנכה` · `הנחה_בארנונה_לנכים` · `ארנונה` (portal) · `הנחה_בחשבון_חשמל_למקבלי_גמלת_סיעוד` · `חשמל` (portal) · `חשבון_מים` (portal) · `הגשת_תביעה_לגמלת_סיעוד` · `מבחן_הכנסות_לצורך_קבלת_גמלת_סיעוד` · `הנחות_ברכישת_תרופות_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה` · `סיוע_במימון_מכשירי_שמיעה_למבוגרים` · `זכויות_ניצולי_שואה` (portal) · `עזרה_סיעודית_לניצולי_שואה_מהקרן_לרווחת_נפגעי_השואה` · `פטור_ממס_במשיכת_כספים_מקופת_גמל_לא_פעילה` · `הנחה_בתשלומי_בזק_למקבלי_קצבת_זיקנה_עם_השלמת_הכנסה` (all on kolzchut.org.il) · gov.il `request_for_farhud_compensation_iraq` · gov.il `itc-request-for-fixed-rights-at-retirement-age`.
-   - **Suspicious redirect:** `https://www.mevaker.gov.il/he/Ombudsman` (arnona_30 link "הגשת תלונה לנציב תלונות הציבור") lands on the Comptroller home page. Find the current Ombudsman complaint page and update the URL in `rules.json`.
-   - The 3 `github.com` links return 404 while the repository is private — they start working when it goes public.
-   - The build sandbox itself could not reach any of these hosts (egress policy); everything above comes from the two CI runs. Re-run any time: Actions → "Test and deploy to GitHub Pages" → Run workflow (job `links-browser`).
-7. **`{{name}}` grammar for "self"** — KICKOFF says substitute "את/ה". For readable Hebrew the UI also maps "של {{name}}" → "שלך" and "ל{{name}}" → "לך", and "ל{{name}}" with no name → "להורה". Confirm this is wanted.
-8. **`for_whom = other`** — the default name is "ההורה" (per KICKOFF). For "קרוב/ה אחר/ת" a neutral default (e.g. "הקרוב/ה") may read better.
-11. **`tel:*6050`-style links** — star codes in `tel:` URIs work on most Israeli carriers/phones but are not guaranteed on every dialer. The number is always shown in full next to the button; verify on one iPhone and one Android.
-12. **iOS Safari and auto read-aloud** — Safari may refuse `speechSynthesis.speak()` before the first user gesture on the page. The manual "הקראה" button always works; the auto-read of the very first screen after a cold load may stay silent on iOS. Verify on a real iPhone (KICKOFF "Done means").
-13. **GitHub Pages is not live yet** — the first deploy run on `main` failed at `actions/configure-pages`: "Create Pages site failed. Resource not accessible by integration". The workflow token may not create the site, and the repository is private (Pages on a private repo needs a paid plan). The deploy job is now gated behind the repository variable `DEPLOY_WITH_ACTIONS=true` so `main` stays green. To go live: make the repo public (it is MIT) or enable Pages in Settings → Pages (Source "Deploy from a branch" → `main` / root, or Source "GitHub Actions" + the variable). Then run the five personas once by hand on the live URL (KICKOFF step 9).
-15. **Women 62–67 who have not yet reached their retirement age** (born 1960–1969) hit the pre-retirement shortcut; the engine still surfaces `transport_women_62` for them (gender and age are known), plus `health_65` when 65+. Confirm the pre-retirement note wording is right for this group.
+11. **`tel:*6050`-style links** — hrefs verified correct (`tel:*6050`, `tel:*3002`, `tel:*8840`); still to tap on one iPhone and one Android. The number is always shown in full next to the button. *(E11 pending)*
+12. **iOS Safari and auto read-aloud** — desktop Chrome exposes the Hebrew voice "Carmit"; phones not yet tested. Safari may stay silent on the first screen before a tap; the manual "הקראה" button always works. *(E12 pending)*
+17. **`transport_women_62` update stamp** — the source name says "עודכן 13.8.2025" (as fetched on 14.9.2026); the page footer showed 11.08.2025 on 15.9.2026. Harmless either way; align the citation at the January 2027 recheck.
 
 ## Resolved / decided (15.9.2026) — reopen if you disagree
 
-- **(was 9) "self" entry skips S1.** Decided: the landing's two entry choices *are* S1 for a "self" user; S1 still renders (with the choice pre-selected) when they press Back. Engine screen counts are unaffected (P4 = 2).
-- **(was 10) `unknown` predicate on multi-select.** Documented behaviour: the UI always stores `"dontknow"` as a string (also for multi-select), matching `reference_engine.py` 1:1. No change needed unless the Python changes.
-- **(was 14) Progress estimate "~M".** Decided: a screen counts as possible while any input of its `show_if` is unanswered; the estimate only shrinks. Verified in `tests/engine.test.js`.
-- **(was 16) Stray `ww2 = ["elsewhere"]` in the Python fixtures P1/P5.** Removed; both suites still green (Python 5/5, `node --test` 37/37).
-- **Interim hosting.** Until GitHub Pages is enabled, the app is published as a multi-file claude.ai Artifact from the build session (same files, same behaviour; link in the session). It is not a substitute for Pages: the artifact does not update on push.
+- **(5) Letter L2 for `arnona_100_old_age_disabled` — decision D5(a).** L2 now has `{{subject_basis}}` and `{{legal_basis}}`. Defaults are the original ס' 9(ב) texts (verbatim, in `strings.he.json → letter.l2_*`). For this card the legal paragraph is the card's own `why` sentence from `rules.json` (תקנות האזרחים הוותיקים (הטבות לאזרח ותיק שמקבל קצבת זקנה לנכה)) and the subject tail names the same regulations; the benefit name is "קצבת זקנה לנכה". The card's caveat now says the letter is adapted automatically and should be read before sending.
+- **(6) External links.** All 39 Kol Zchut / gov.il pages open in a browser (15.9.2026); the other 19 URLs passed automated checks. Three URLs updated (two Kol Zchut redirects, the Ombudsman page). Details in `VERIFICATION.md → Link verification — 15.9.2026`. The GitHub links work now that the repository is public.
+- **(7) `{{name}}` grammar for "self" — decision D7: keep.** "של {{name}}" → "שלך", "ל{{name}}" → "לך"; covered by `tests/format.test.js`.
+- **(8) Default name for "קרוב/ה אחר/ת" — decision D8.** Now "בן/בת המשפחה" (and "לבן/בת המשפחה"); when `for_whom = other` the name field shows a stronger prompt. The landing offers the third entry "אני בודק/ת עבור קרוב/ה אחר/ת".
+- **(9) "self" entry skips S1.** Decided: the landing's entry choice *is* the "for whom" question. After the live check found the question asked twice (bug 2), S1 no longer repeats it for anyone: it shows the optional name field and a "בודקים עבור: … · שינוי" line. Engine screen counts are unchanged.
+- **(10) `unknown` predicate on multi-select.** Documented behaviour: the UI always stores `"dontknow"` as a string, matching `reference_engine.py` 1:1.
+- **(13) GitHub Pages.** Live at **https://antenaoptival.github.io/zchuyot-horim/** (Deploy from a branch: `main` / root). The repository is public (history scanned: kit/build files only). The Actions deploy job stays gated behind `DEPLOY_WITH_ACTIONS=true` and is not needed for this path. No custom domain yet.
+- **(14) Progress estimate "~M".** Decided: a screen counts as possible while any input of its `show_if` is unanswered; the estimate only shrinks.
+- **(15) Women 62–67 before their retirement age — decision D15.** Under the pre-retirement note they now also see: "בינתיים: נשים מגיל 62 כבר זכאיות ל-50% הנחה בתחבורה הציבורית — ראו הכרטיס למטה." (shown only when `transport_women_62` surfaces).
+- **(16) Stray `ww2 = ["elsewhere"]` in the Python fixtures.** Removed; both suites green.
+- **Bug 1 (live check): source line showed "מקור: ההורה".** The `{{name}}` template key collided with the source's `name`. Fixed: templating moved to `format.js`, extras are applied before the name substitution, the string key is `{{source_name}}`; `tests/format.test.js` asserts the rendered line for P1's first card and for every right.
+- **Bug 2 (live check): "for whom" asked twice.** See (9).
+- **GoatCounter** — Harel will create the account and set `const GOATCOUNTER = '<code>'` in `app.js` (currently off).
+- **Interim hosting** — the claude.ai artifact copy is superseded by GitHub Pages; it is kept in sync manually only while testers still hold that link.

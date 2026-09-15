@@ -1,5 +1,7 @@
 # Manual verification — a prompt for Cowork (browser) and for Harel
 
+> **Status 15.9.2026 ~09:00:** run once. Pages is live, the repo is public, all 39 pages loaded, three URLs were updated, decisions D5/D7/D8/D15 applied, two UI bugs fixed. Still pending: E1–E3 (phone calls), E11–E12 (phone tests). Re-run Tasks B–C after every content update to `rules.json`.
+
 Everything the build session could not do from its sandbox (no access to Israeli government sites, Kol Zchut, or the GitHub settings UI). Paste the block between the lines into Cowork with the browser extension; answer the "Decisions" and "Phone" parts yourself; bring the **Report** back to the build session, which will apply the results to `rules.json` / the letters / the docs.
 
 ---
